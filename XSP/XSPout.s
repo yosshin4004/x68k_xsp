@@ -46,7 +46,7 @@ A7ID	=	4+14*4			*   スタック上 return先アドレス  [ 4 byte ]
 
 		clr.w	OX_mask_renew		* 更新フラグをクリア
 
-	*-------[ OX_mask更新 ]
+	*-------[ OX_mask 更新 ]
 		moveq.l	#0,d0			* d0.l = 0
 		move.b	OX_level(pc),d1
 		sub.b	#1,d1			* d1.b = OX_tbl 水位 - 1
@@ -58,9 +58,9 @@ A7ID	=	4+14*4			*   スタック上 return先アドレス  [ 4 byte ]
 		moveq.l	#0,d4			* d4.l = 0（マスク off の PCG の 最小ナンバー）
 		moveq.l	#0,d5			* d5.l = 0（マスク off の PCG の 最大ナンバー）
 
-		lea.l	OX_tbl,a0		* a0.l = OX_tbl
-		lea.l	OX_mask,a1		* a1.l = OX_mask
-		lea.l	pcg_rev_alt,a2		* a2.l = pcg_rev_alt
+		lea.l	OX_tbl_no_pc,a0		* a0.l = OX_tbl
+		lea.l	OX_mask_no_pc,a1	* a1.l = OX_mask
+		lea.l	pcg_rev_alt_no_pc,a2	* a2.l = pcg_rev_alt
 		movea.l	pcg_alt_adr(pc),a3	* a3.l = pcg_alt
 
 OX_mask_renew_LOOP:
@@ -119,7 +119,7 @@ OX_level_INC:
 	*-------[ 水位の引き下げ処理 ]
 		move.b	#4,(a0)		* OX_level.b = 4
 
-		lea.l	OX_tbl,a0	* a0.l = OX_tbl
+		lea.l	OX_tbl_no_pc,a0	* a0.l = OX_tbl
 		moveq.l	#0,d0		* d0.l = 0
 		moveq.l	#31,d1		* d1.l = 31（dbra カウンタ）
 @@:
@@ -171,7 +171,7 @@ OX_level_INC_END:
 
 
 *=======[ 使用スプライト数などを求める ]
-	lea	buff_top_adr,a0		* a0.l = #buff_top_adr
+	lea	buff_top_adr_no_pc,a0		* a0.l = #buff_top_adr_no_pc
 	move.l	buff_pointer(pc),d0
 	sub.l	a0,d0			* d0.w =（仮バッファ上の）スプライト数 x 8
 
@@ -181,7 +181,7 @@ OX_level_INC_END:
 		cmpi.w	#384*8,d0
 		ble.b	EXIT_GET_TOTAL_SP	* #384*8 >= d0 なら bra
 			move.w	#384*8,d0	* 384 枚以下に修正
-			move.l	#buff_top_adr+384*8,buff_pointer
+			move.l	#buff_top_adr_no_pc+384*8,buff_pointer
 			bra.b	EXIT_GET_TOTAL_SP
 @@:
 	cmpi.w	#128*8,d0
@@ -222,12 +222,12 @@ EXIT_GET_TOTAL_SP:
 *-------[ レジスタ初期化 ]
 					*---------------------------------------------
 	adda.w	d0,a0			* a0.l = 仮バッファスキャン（末端より）
-	lea.l	pr_top_tbl,a1		* a1.l = PR 別先頭テーブル
+	lea.l	pr_top_tbl_no_pc,a1	* a1.l = PR 別先頭テーブル
 					* a2.l = 
 	movea.l	pcg_alt_adr(pc),a3	* a3.l = pcg_alt
 					* a4.l = 
 					* a5.l = 
-	lea.l	OX_tbl,a6		* a6.l = OX_tbl
+	lea.l	OX_tbl_no_pc,a6		* a6.l = OX_tbl
 					* a7.l = PCG 定義要求バッファ
 					*---------------------------------------------
 
@@ -236,7 +236,7 @@ EXIT_GET_TOTAL_SP:
 	subq.w	#4,a7			* ポインタ補正
 
 *-------[ PR 別先頭テーブル[32].l の初期化 ]
-	move.l	#buff_end_adr,d0	* d0.l = 終点ダミー PR ブロックのアドレス
+	move.l	#buff_end_adr_no_pc,d0	* d0.l = 終点ダミー PR ブロックのアドレス
 	move.l	d0,d1
 	move.l	d0,d2
 	move.l	d0,d3
@@ -333,7 +333,7 @@ START_MK_CHAIN:
 *-------[ 0 なので end_mark の可能性有り ]
 	move.b	#$10,d2			* pr = 0 が連鎖すると end_mark を取りこぼすので無理やり補正
 
-	cmpa.l	#buff_top_adr,a0	* 本当に終点までスキャンしたか？
+	cmpa.l	#buff_top_adr_no_pc,a0	* 本当に終点までスキャンしたか？
 	bne.b	MK_CHAIN_LOOP		* NO なら繰り返し
 
 	bra	PCG_DEF_1
@@ -437,7 +437,7 @@ START_MK_CHAIN_v:
 *-------[ 0 なので end_mark の可能性有り ]
 	move.b	#$10,d2			* pr = 0 が連鎖すると end_mark を取りこぼすので無理やり補正
 
-	cmpa.l	#buff_top_adr,a0	* 本当に終点までスキャンしたか？
+	cmpa.l	#buff_top_adr_no_pc,a0	* 本当に終点までスキャンしたか？
 	bne.b	MK_CHAIN_LOOP_v		* NO なら繰り返し
 
 
@@ -462,7 +462,7 @@ PCG_DEF_1:
 					* a1.l = temp
 					* a2.l = 帰線期間 PCG 定義要求バッファ
 					* a3.l = pcg_alt
-	lea.l	pcg_rev_alt,a4		* a4.l = pcg_rev_alt
+	lea.l	pcg_rev_alt_no_pc,a4	* a4.l = pcg_rev_alt
 	movea.l	OX_chk_ptr(pc),a5	* a5.l = OX_tbl 検索ポインタ
 					* a6.l = OX_tbl
 					* a7.l = PCG 定義要求バッファポインタ
@@ -712,11 +712,11 @@ PCG_DEF_COMPLETE:
 LINK_CHAIN:
 
 *-------[ 初期化 ]
-	lea.l	buff_end_adr,a0		* a0.l = 終点ダミー PR ブロック
+	lea.l	buff_end_adr_no_pc,a0	* a0.l = 終点ダミー PR ブロック
 	move.w	#-1,CHAIN_OFS(a0)	* 終点ダミーチェインに、end_mark（連鎖数-1）書き込み
 	move.l	a0,-(a7)		* スタックに end_mark として書き込む
 
-	lea.l	pr_top_tbl,a1		* a1.l = PR 別先頭テーブル
+	lea.l	pr_top_tbl_no_pc,a1	* a1.l = PR 別先頭テーブル
 	move.l	#-1,64*4(a1)		* PR 別先頭テーブル末端に end_mark(-1)書込み
 	lea.l	$10*4(a1),a1		* pr >= $10 に強制補正しているので、pr = $10 よりスキャン
 
@@ -780,9 +780,9 @@ SP_RAS_SORT_END:
 	movea.l	write_struct(pc),a0	* a0.l = 書換用バッファ管理構造体アドレス
 	lea.l	STRUCT_SIZE(a0),a0
 
-	cmpa.l	#endof_XSP_STRUCT,a0	* 終点まで達したか？
+	cmpa.l	#endof_XSP_STRUCT_no_pc,a0	* 終点まで達したか？
 	bne.b	@F			* No なら bra
-		lea.l	XSP_STRUCT,a0	* a0.l = バッファ管理構造体 #0 アドレス
+		lea.l	XSP_STRUCT_no_pc,a0	* a0.l = バッファ管理構造体 #0 アドレス
 @@:
 	cmpa.l	disp_struct(pc),a0	* 表示用バッファ管理構造体と重なっているか？
 	beq.b	@B			* 重なっているなら表示用バッファが変更されるまで待つ。
@@ -798,10 +798,10 @@ SP_RAS_SORT_END:
 
 *-------[ 戻り値 ]
 	move.l	buff_pointer(pc),d0
-	sub.l	#buff_top_adr,d0
+	sub.l	#buff_top_adr_no_pc,d0
 	asr.l	#3,d0				* 戻り値＝仮バッファ上のスプライト数
 
-	move.l	#buff_top_adr,buff_pointer	* 仮バッファのポインタを初期化
+	move.l	#buff_top_adr_no_pc,buff_pointer	* 仮バッファのポインタを初期化
 
 	movea.l	a7_bak1(pc),a7			* A7 復活
 	movem.l	(sp)+,d1-d7/a0-a6		* レジスタ復活

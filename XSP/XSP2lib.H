@@ -62,5 +62,9 @@ void	xsp_hsyncint_off();
 void	xsp_auto_adjust_divy(short flag);
 void	xsp_min_divh_set(short h);
 short	xsp_divy_get(short i);
+void	xsp_raster_ofs_for31khz_set(short ofs);
+short	xsp_raster_ofs_for31khz_get();
+void	xsp_raster_ofs_for15khz_set(short ofs);
+short	xsp_raster_ofs_for15khz_get();
 
 #endif

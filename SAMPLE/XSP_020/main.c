@@ -107,16 +107,22 @@ void main()
 	int		crt;
 	int		adjust_divy;
 	int		min_divh;
-	int		ras_int;
+	int		raster_ofs;
+	int		raster_scroll_test;
 	FILE	*fp;
 
 
 	mode		= input2("	XSP_MODE ", 3);
 	crt			= input2("	CRT_MODE [1]=31Khz : [2]=15Khz ", 1);
 	adjust_divy	= input2("	ラスタ分割 Y 座標自動調整  [1]=ON : [2]=OFF ", 1);
-	min_divh	= input2("	ラスタ分割ブロック縦幅最小値 ", 32);
-	ras_int		= input2("	ラスタスクロール  [1]=ON : [2]=OFF ", 1);
-	panel_max	= input2("	パネル枚数 ", 32);
+	min_divh	= input2("	ラスタ分割ブロック縦幅最小値 ", 24);
+	if (crt == 1) {
+		raster_ofs	= input2("	スプライト転送ラスタオフセット (31Khz) ", xsp_raster_ofs_for31khz_get());
+	} else {
+		raster_ofs	= input2("	スプライト転送ラスタオフセット (15Khz) ", xsp_raster_ofs_for15khz_get());
+	}
+	raster_scroll_test	= input2("	ラスタスクロールテスト  [1]=ON : [2]=OFF ", 1);
+	panel_max			= input2("	パネル枚数 ", 32);
 	if (panel_max > 512) panel_max = 512;
 
 
@@ -303,6 +309,13 @@ void main()
 		xsp_auto_adjust_divy(0);
 	}
 
+	/* スプライト転送ラスタオフセットの設定 */
+	if (crt == 1) {
+		xsp_raster_ofs_for31khz_set(raster_ofs);
+	} else {
+		xsp_raster_ofs_for15khz_set(raster_ofs);
+	}
+
 	/* PCG データと PCG 配置管理をテーブルを指定 */
 	xsp_pcgdat_set(pcg_dat, pcg_alt, sizeof(pcg_alt));
 
@@ -346,7 +359,7 @@ void main()
 
 	/*-------------------[ 割り込み処理設定 ]-------------------*/
 
-	if (ras_int == 1) {
+	if (raster_scroll_test == 1) {
 		/* フォント表示 */
 		symbol(0, 0x10, "ラスタスクロールと", 1, 4, 2, 1, 0);
 		symbol(0, 0x90, "スプライトダブラ混在", 1, 4, 2, 1, 0);

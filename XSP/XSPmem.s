@@ -2,26 +2,26 @@
 	.text
 	.even
 
-vektor_118_bak:	dc.l	0		* •ÏX‘O‚Ì V-disp ƒxƒNƒ^
-vektor_138_bak:	dc.l	0		* •ÏX‘O‚Ì CRT-IRQ ƒxƒNƒ^
-raster_No_bak:	dc.w	0		* •ÏX‘O‚Ì CRT-IRQ ƒ‰ƒXƒ^ No.
-MFP_bak:	dcb.b	$18,0		* •ÏX‘O‚Ì MFP
+vektor_118_bak:	dc.l	0			* •ÏX‘O‚Ì V-disp ƒxƒNƒ^
+vektor_138_bak:	dc.l	0			* •ÏX‘O‚Ì CRT-IRQ ƒxƒNƒ^
+raster_No_bak:	dc.w	0			* •ÏX‘O‚Ì CRT-IRQ ƒ‰ƒXƒ^ No.
+MFP_bak:	dcb.b	$18,0			* •ÏX‘O‚Ì MFP
 
 	.even
 
 
 *--------------[ ƒXƒvƒ‰ƒCƒg‰¼ƒoƒbƒtƒ@‚Ìƒ|ƒCƒ“ƒ^ ]
 buff_pointer:
-		dc.l	buff_top_adr
+		dc.l	buff_top_adr_no_pc
 
 *--------------[ ƒ†[ƒU[w’è‹AüŠúŠÔŠ„‚è‚İ ]
-vsyncint_sub:	dc.l	dummy_proc	* Š„‚è‚İˆ—ƒTƒuƒ‹[ƒ`ƒ“ƒAƒhƒŒƒXi‰Šú’l‚Íƒ_ƒ~[j
+vsyncint_sub:	dc.l	dummy_proc		* Š„‚è‚İˆ—ƒTƒuƒ‹[ƒ`ƒ“ƒAƒhƒŒƒXi‰Šú’l‚Íƒ_ƒ~[j
 
 *--------------[ ƒ‰ƒXƒ^Š„‚è‚İŠÖŒW ]
-hsyncint_sub:	dc.l	dummy_proc	* Š„‚è‚İˆ—ƒTƒuƒ‹[ƒ`ƒ“ƒAƒhƒŒƒXi‰Šú’l‚Íƒ_ƒ~[j
-xsp_chart_ptr:	dc.l	dummy_chart	* XSP ‘¤ƒ`ƒƒ[ƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^i‰Šú’l‚Íƒ_ƒ~[j
-usr_chart_ptr:	dc.l	dummy_chart	* USR ‘¤ƒ`ƒƒ[ƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^i‰Šú’l‚Íƒ_ƒ~[j
-usr_chart:	dc.l	dummy_chart	* USR ‘¤ƒ`ƒƒ[ƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^‰Šú’liUSR w’è‰Â”\j
+hsyncint_sub:	dc.l	dummy_proc		* Š„‚è‚İˆ—ƒTƒuƒ‹[ƒ`ƒ“ƒAƒhƒŒƒXi‰Šú’l‚Íƒ_ƒ~[j
+xsp_chart_ptr:	dc.l	dummy_chart		* XSP ‘¤ƒ`ƒƒ[ƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^i‰Šú’l‚Íƒ_ƒ~[j
+usr_chart_ptr:	dc.l	dummy_chart		* USR ‘¤ƒ`ƒƒ[ƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^i‰Šú’l‚Íƒ_ƒ~[j
+usr_chart:	dc.l	dummy_chart		* USR ‘¤ƒ`ƒƒ[ƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^‰Šú’liUSR w’è‰Â”\j
 
 *----------------[ ƒ‰ƒXƒ^•ªŠ„ Y À•W ]
 divy_AB:	dc.w	36			* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@AB ‹«ŠE Y
@@ -33,42 +33,45 @@ divy_FG:	dc.w	36+32+36+32+36+32	* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@FG ‹«ŠE Y
 divy_GH:	dc.w	36+32+36+32+36+32+36	* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@GH ‹«ŠE Y
 
 *--------------[ ‚»‚Ì‘¼ ]
-sp_mode:	dc.w	2		* XSP ‚Ìƒ‚[ƒhi1`3j
+sp_mode:	dc.w	2			* XSP ‚Ìƒ‚[ƒhi1`3j
 
-R65535:		dc.w	0		* ƒVƒXƒeƒ€“à•”ƒJƒEƒ“ƒ^
+R65535:		dc.w	0			* ƒVƒXƒeƒ€“à•”ƒJƒEƒ“ƒ^
 
-write_struct:	dc.l	XSP_STRUCT	* ‘Š·—pƒoƒbƒtƒ@ŠÇ—\‘¢‘ÌƒAƒhƒŒƒX
-disp_struct:	dc.l	XSP_STRUCT	* •\¦—pƒoƒbƒtƒ@ŠÇ—\‘¢‘ÌƒAƒhƒŒƒX
+write_struct:	dc.l	XSP_STRUCT_no_pc	* ‘Š·—pƒoƒbƒtƒ@ŠÇ—\‘¢‘ÌƒAƒhƒŒƒX
+disp_struct:	dc.l	XSP_STRUCT_no_pc	* •\¦—pƒoƒbƒtƒ@ŠÇ—\‘¢‘ÌƒAƒhƒŒƒX
 
-vsync_count:	dc.w	0		* ‹AüŠúŠÔ‚ª—ˆ‚½‚çƒCƒ“ƒNƒŠ‚·‚é
+vsync_count:	dc.w	0			* ‹AüŠúŠÔ‚ª—ˆ‚½‚çƒCƒ“ƒNƒŠ‚·‚é
 
-sp_ref_adr:	dc.l	0		* •¡‡ƒXƒvƒ‰ƒCƒg‚ÌƒŠƒtƒ@ƒŒƒ“ƒXƒf[ƒ^‚Ö‚Ìƒ|ƒCƒ“ƒ^
+sp_ref_adr:	dc.l	0			* •¡‡ƒXƒvƒ‰ƒCƒg‚ÌƒŠƒtƒ@ƒŒƒ“ƒXƒf[ƒ^‚Ö‚Ìƒ|ƒCƒ“ƒ^
 
-pcg_alt_adr:	dc.l	0		* pcg_alt ‚Ìƒ|ƒCƒ“ƒ^iƒ†[ƒU[w’èj
+pcg_alt_adr:	dc.l	0			* pcg_alt ‚Ìƒ|ƒCƒ“ƒ^iƒ†[ƒU[w’èj
 
-pcg_dat_adr:	dc.l	0		* PCG ƒf[ƒ^‚Ìƒ|ƒCƒ“ƒ^iƒ†[ƒU[w’èj
+pcg_dat_adr:	dc.l	0			* PCG ƒf[ƒ^‚Ìƒ|ƒCƒ“ƒ^iƒ†[ƒU[w’èj
 
-OX_level:	dc.b	0		* OX_tbl …ˆÊ
+OX_level:	dc.b	0			* OX_tbl …ˆÊ
 	.even
-OX_mask_renew:	dc.w	0		* OX_mask XV‚ª‚ ‚Á‚½‚±‚Æ‚ğ¦‚·ƒtƒ‰ƒOi”ñ 0 ‚ÅXVj
-OX_chk_top:	dc.l	0		* OX_tbl ŒŸõŠJnƒAƒhƒŒƒX
-OX_chk_ptr:	dc.l	0		* OX_tbl ŒŸõƒ|ƒCƒ“ƒ^
-OX_chk_size:	dc.w	0		* OX_tbl ŒŸõƒTƒCƒY - 1idbra ƒJƒEƒ“ƒ^‚Æ‚·‚éj
+OX_mask_renew:	dc.w	0			* OX_mask XV‚ª‚ ‚Á‚½‚±‚Æ‚ğ¦‚·ƒtƒ‰ƒOi”ñ 0 ‚ÅXVj
+OX_chk_top:	dc.l	0			* OX_tbl ŒŸõŠJnƒAƒhƒŒƒX
+OX_chk_ptr:	dc.l	0			* OX_tbl ŒŸõƒ|ƒCƒ“ƒ^
+OX_chk_size:	dc.w	0			* OX_tbl ŒŸõƒTƒCƒY - 1idbra ƒJƒEƒ“ƒ^‚Æ‚·‚éj
 
-a7_bak1:	dc.l	0		* A7 ƒŒƒWƒXƒ^‚ğ•Û‘¶iƒŒƒWƒXƒ^‘Ş”ğ’¼Œãj
+a7_bak1:	dc.l	0			* A7 ƒŒƒWƒXƒ^‚ğ•Û‘¶iƒŒƒWƒXƒ^‘Ş”ğ’¼Œãj
 
-usp_bak:	dc.l	0		* usp •Û‘¶
+usp_bak:	dc.l	0			* usp •Û‘¶
 
-XSP_flg:	dc.b	0		* XSP ‰Šú‰»ó‘Ô‚Ìƒtƒ‰ƒOi8 ƒrƒbƒgj
-					* bit0 = ‘g‚İó‘Ô‚©H
-					* bit1 = PCG_DAT,PCG_ALT w’èÏ‚©H
+XSP_flg:	dc.b	0			* XSP ‰Šú‰»ó‘Ô‚Ìƒtƒ‰ƒOi8 ƒrƒbƒgj
+						* bit0 = ‘g‚İó‘Ô‚©H
+						* bit1 = PCG_DAT,PCG_ALT w’èÏ‚©H
 	.even
 
-vertical_flg:	dc.w	0		* c‰æ–Êƒ‚[ƒhƒtƒ‰ƒOi”ñ 0 = c‰æ–Êƒ‚[ƒhj
+vertical_flg:	dc.w	0			* c‰æ–Êƒ‚[ƒhƒtƒ‰ƒOi”ñ 0 = c‰æ–Êƒ‚[ƒhj
 
-min_divh:	dc.w	32		* ƒ‰ƒXƒ^•ªŠ„ƒuƒƒbƒNc•Å¬’li”ñ 0 = ©“®’²®j
+min_divh:	dc.w	32			* ƒ‰ƒXƒ^•ªŠ„ƒuƒƒbƒNc•Å¬’li”ñ 0 = ©“®’²®j
 
-auto_adjust_divy_flg:	dc.w	1	* ƒ‰ƒXƒ^•ªŠ„ Y À•W©“®’²®ƒtƒ‰ƒOi”ñ 0 = ©“®’²®j
+auto_adjust_divy_flg:	dc.w	1		* ƒ‰ƒXƒ^•ªŠ„ Y À•W©“®’²®ƒtƒ‰ƒOi”ñ 0 = ©“®’²®j
+
+raster_ofs_for31khz:	dc.w	16*2+8		* ƒXƒvƒ‰ƒCƒg“]‘—ƒ‰ƒXƒ^‚Ì’²®’li31KHz —pj
+raster_ofs_for15khz:	dc.w	16*1+0		* ƒXƒvƒ‰ƒCƒg“]‘—ƒ‰ƒXƒ^‚Ì’²®’li15KHz —pj
 
 
 *==============================================================
@@ -78,20 +81,23 @@ auto_adjust_divy_flg:	dc.w	1	* ƒ‰ƒXƒ^•ªŠ„ Y À•W©“®’²®ƒtƒ‰ƒOi”ñ 0 = ©“®’²®
 
 
 *--------------[ XSP ƒoƒbƒtƒ@ŠÇ—\‘¢‘Ìiƒoƒbƒtƒ@ No. •Êj]
-XSP_STRUCT:
+XSP_STRUCT_no_pc:
 		ds.b	STRUCT_SIZE*3
-endof_XSP_STRUCT:
+endof_XSP_STRUCT_no_pc:
 
 
 *----------------[ ƒXƒvƒ‰ƒCƒg‰¼ƒoƒbƒtƒ@ & —Dæ“xƒ\[ƒgŠÖŒW‚Ìƒoƒbƒtƒ@ ]
 
 		ds.b	8		* end_markipr = 0j
-buff_top_adr:	ds.b	8*SP_MAX	* push‰Â”\–‡” x 8 ƒoƒCƒg
-buff_end_adr:	ds.b	8		* end_marki8 ƒoƒCƒg‚Ì -1jŒ“ I“_ƒ_ƒ~[ PR ƒuƒƒbƒN
+buff_top_adr_no_pc:
+		ds.b	8*SP_MAX	* push‰Â”\–‡” x 8 ƒoƒCƒg
+buff_end_adr_no_pc:
+		ds.b	8		* end_marki8 ƒoƒCƒg‚Ì -1jŒ“ I“_ƒ_ƒ~[ PR ƒuƒƒbƒN
 		ds.b	8*SP_MAX	* ƒ\[ƒgƒ`ƒFƒCƒ“ì¬ƒoƒbƒtƒ@
 		ds.b	8		* I“_ƒ_ƒ~[ƒ`ƒFƒCƒ“
 
-pr_top_tbl:	ds.l	64		* PR •Êæ“ªƒe[ƒuƒ‹
+pr_top_tbl_no_pc:
+		ds.l	64		* PR •Êæ“ªƒe[ƒuƒ‹
 		ds.l	1		* end_mark —p
 
 
@@ -102,80 +108,106 @@ pr_top_tbl:	ds.l	64		* PR •Êæ“ªƒe[ƒuƒ‹
 
 
 *	[ + $0000 = ƒoƒbƒtƒ@No.0 ]
-div_buff_0A:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@A
+div_buff_0A_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@A
 		ds.b	8		* end_mark
-div_buff_0B:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@B
+div_buff_0B_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@B
 		ds.b	8		* end_mark
-div_buff_0C:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@C
+div_buff_0C_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@C
 		ds.b	8		* end_mark
-div_buff_0D:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@D
+div_buff_0D_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@D
 		ds.b	8		* end_mark
-div_buff_0E:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@E
+div_buff_0E_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@E
 		ds.b	8		* end_mark
-div_buff_0F:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@F
+div_buff_0F_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@F
 		ds.b	8		* end_mark
-div_buff_0G:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@G
+div_buff_0G_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@G
 		ds.b	8		* end_mark
-div_buff_0H:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@H
+div_buff_0H_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@H
 		ds.b	8		* end_mark
 
 
 *	[ + $1040 = ƒoƒbƒtƒ@No.1 ]
-div_buff_1A:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@A
+div_buff_1A_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@A
 		ds.b	8		* end_mark
-div_buff_1B:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@B
+div_buff_1B_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@B
 		ds.b	8		* end_mark
-div_buff_1C:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@C
+div_buff_1C_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@C
 		ds.b	8		* end_mark
-div_buff_1D:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@D
+div_buff_1D_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@D
 		ds.b	8		* end_mark
-div_buff_1E:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@E
+div_buff_1E_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@E
 		ds.b	8		* end_mark
-div_buff_1F:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@F
+div_buff_1F_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@F
 		ds.b	8		* end_mark
-div_buff_1G:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@G
+div_buff_1G_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@G
 		ds.b	8		* end_mark
-div_buff_1H:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@H
+div_buff_1H_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@H
 		ds.b	8		* end_mark
 
 
 *	[ + $2080 = ƒoƒbƒtƒ@No.2 ]
-div_buff_2A:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@A
+div_buff_2A_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@A
 		ds.b	8		* end_mark
-div_buff_2B:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@B
+div_buff_2B_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@B
 		ds.b	8		* end_mark
-div_buff_2C:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@C
+div_buff_2C_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@C
 		ds.b	8		* end_mark
-div_buff_2D:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@D
+div_buff_2D_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@D
 		ds.b	8		* end_mark
-div_buff_2E:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@E
+div_buff_2E_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@E
 		ds.b	8		* end_mark
-div_buff_2F:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@F
+div_buff_2F_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@F
 		ds.b	8		* end_mark
-div_buff_2G:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@G
+div_buff_2G_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@G
 		ds.b	8		* end_mark
-div_buff_2H:	ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@H
+div_buff_2H_no_pc:
+		ds.b	8*64		* ƒ‰ƒXƒ^•ªŠ„ƒoƒbƒtƒ@H
 		ds.b	8		* end_mark
 
 *	[ + $30C0 = “]‘—ƒ`ƒFƒCƒ“î•ñ ]
-div_buff_chain:	ds.b	(8*64+8)*8*3
+div_buff_chain_no_pc:
+		ds.b	(8*64+8)*8*3
 
 
 *----------------[ PCG ”z’uŠÇ—i‹tQÆjƒe[ƒuƒ‹ ]
 
 *	PCG_No.¨ƒpƒ^[ƒ“No. •ÏŠ·ƒe[ƒuƒ‹‚Å‚·B
 
-pcg_rev_alt:	ds.w	256		* ‹tQÆ alt ‰Šú’l(-1)‚ğ‘‚«‚Ş‚±‚Æ
+pcg_rev_alt_no_pc:
+		ds.w	256		* ‹tQÆ alt ‰Šú’l(-1)‚ğ‘‚«‚Ş‚±‚Æ
 
 
 *----------------[ OX ƒe[ƒuƒ‹ ]
 
 *	Še PCG ‚ªg—p‚³‚ê‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğ•\‚·ƒe[ƒuƒ‹‚Å‚·B
 
-OX_tbl:
+OX_tbl_no_pc:
 		ds.b	256		* …ˆÊî•ñ
 		ds.w	1		* end_mark(0)‚ğ‘‚«‚Ş‚±‚Æ
-OX_mask:
+OX_mask_no_pc:
 		ds.b	256		* ƒ}ƒXƒNî•ñi0:off  255:onj
 
 

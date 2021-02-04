@@ -245,7 +245,7 @@ OBJ_SET_INIT_STEP1:
 OBJ_SET_INIT_STEP2:
 
 	movea.l	buff_pointer(pc),a0
-	move.l	#buff_end_adr,d0
+	move.l	#buff_end_adr_no_pc,d0
 	sub.l	a0,d0			* d0.l -= a0.l
 	asr.w	#3,d0			* d0.w /= 8
 					* d0.w = push可能スプライト数(1～)
