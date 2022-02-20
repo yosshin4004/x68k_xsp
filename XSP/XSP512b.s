@@ -256,7 +256,7 @@ SORT_512b_PRchange:
 		add.w	d1,d0			* buff_X_total に スキップ数*8 加算
 		add.w	d1,d1			* d1.w = スキップ数*16
 		move.w	d1,CHAIN_OFS_div(a2)	* チェイン情報の「スキップ数*8」に書込み
-@@:	add.w	d0,(a0)+			* buff_X_totalに加算
+@@:	add.w	d0,(a0)+			* buff_X_totalに 転送数*8 加算
 
 	move.w	(a1)+,d0			* d0.w = 転送数*8
 	beq.b	@f
@@ -268,19 +268,19 @@ SORT_512b_PRchange:
 		add.w	d1,d0			* buff_X_total に スキップ数*8 加算
 		add.w	d1,d1			* d1.w = スキップ数*16
 		move.w	d1,CHAIN_OFS_div(a2)	* チェイン情報の「スキップ数*8」に書込み
-@@:	add.w	d0,(a0)+			* buff_X_totalに加算
+@@:	add.w	d0,(a0)+			* buff_X_totalに 転送数*8 加算
 
 	move.w	(a1)+,d0			* d0.w = 転送数*8
 	beq.b	@f
 		movea.l	d4,a2			* a2.l = buff_X ポインタ
-		sub.w	d0,a2			* a2.l = buff_X の 同一 PR ロックの先頭
+		sub.w	d0,a2			* a2.l = buff_X の 同一 PR ブロックの先頭
 		move.w	d0,CHAIN_OFS_div+2(a2)	* チェイン情報の「転送数*8」に書込み
 		move.w	16(a0),d1		* d1.w  = buff_X_protect
 		sub.w	(a0),d1			* d1.w -= buff_X_total
 		add.w	d1,d0			* buff_X_total に スキップ数*8 加算
 		add.w	d1,d1			* d1.w = スキップ数*16
 		move.w	d1,CHAIN_OFS_div(a2)	* チェイン情報の「スキップ数*8」に書込み
-@@:	add.w	d0,(a0)+			* buff_X_totalに加算
+@@:	add.w	d0,(a0)+			* buff_X_totalに 転送数*8 加算
 
 	move.w	(a1)+,d0			* d0.w = 転送数*8
 	beq.b	@f
@@ -292,7 +292,7 @@ SORT_512b_PRchange:
 		add.w	d1,d0			* buff_X_total に スキップ数*8 加算
 		add.w	d1,d1			* d1.w = スキップ数*16
 		move.w	d1,CHAIN_OFS_div(a2)	* チェイン情報の「スキップ数*8」に書込み
-@@:	add.w	d0,(a0)+			* buff_X_totalに加算
+@@:	add.w	d0,(a0)+			* buff_X_totalに 転送数*8 加算
 
 	move.w	(a1)+,d0			* d0.w = 転送数*8
 	beq.b	@f
@@ -304,7 +304,7 @@ SORT_512b_PRchange:
 		add.w	d1,d0			* buff_X_total に スキップ数*8 加算
 		add.w	d1,d1			* d1.w = スキップ数*16
 		move.w	d1,CHAIN_OFS_div(a2)	* チェイン情報の「スキップ数*8」に書込み
-@@:	add.w	d0,(a0)+			* buff_X_totalに加算
+@@:	add.w	d0,(a0)+			* buff_X_totalに 転送数*8 加算
 
 	move.w	(a1)+,d0			* d0.w = 転送数*8
 	beq.b	@f
@@ -316,7 +316,7 @@ SORT_512b_PRchange:
 		add.w	d1,d0			* buff_X_total に スキップ数*8 加算
 		add.w	d1,d1			* d1.w = スキップ数*16
 		move.w	d1,CHAIN_OFS_div(a2)	* チェイン情報の「スキップ数*8」に書込み
-@@:	add.w	d0,(a0)+			* buff_X_totalに加算
+@@:	add.w	d0,(a0)+			* buff_X_totalに 転送数*8 加算
 
 	move.w	(a1)+,d0			* d0.w = 転送数*8
 	beq.b	@f
@@ -328,7 +328,7 @@ SORT_512b_PRchange:
 		add.w	d1,d0			* buff_X_total に スキップ数*8 加算
 		add.w	d1,d1			* d1.w = スキップ数*16
 		move.w	d1,CHAIN_OFS_div(a2)	* チェイン情報の「スキップ数*8」に書込み
-@@:	add.w	d0,(a0)+			* buff_X_totalに加算
+@@:	add.w	d0,(a0)+			* buff_X_totalに 転送数*8 加算
 
 
 

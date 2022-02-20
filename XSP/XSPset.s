@@ -48,6 +48,11 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 		move.w	A7ID+arg4_w(sp),(a0)+	*[16]	SP_info を転送
 
 		move.l	a0,(a2)			*[12]	仮バッファポインタの保存
+
+XSP_SET_RETURN:
+					*	d0.w = SP_x
+	rts
+
 .else
 	* 
 	* シフトビット数が 0 でない時は、SP_x SP_y をまとめて long で処理した方が高速。
@@ -77,16 +82,18 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 		move.w	A7ID+arg4_w(sp),(a0)+	*[16]	SP_info を転送
 
 		move.l	a0,(a2)			*[12]	仮バッファポインタの保存
-.endif
 
 XSP_SET_RETURN:
 	.if	COMPATIBLE<>0
 					*	d0.l = SP_x,SP_y
 					* 過去の動作との互換にするには swap が必要
-		swap	d0		*[ 4]	d0.w = SP_x
+		swap	d0		*[ 4]	d0.l = SP_y,SP_x
 	.endif
-
+					*	d0.w = SP_x
 	rts
+
+.endif
+
 
 XSP_SET_CANCEL:
 	moveq	#0,d0			*[ 4]	画面外なので、戻り値 = 0
@@ -122,14 +129,14 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 	move.l	(a1)+,d0			*[12]	d0.l = SP_x,SP_y
 
 	cmpi.l	#(XY_MAX<<(SHIFT+16)),d0	*[14]	X 座標画面外チェック
-	bcc.b	XSP_SET_CANCEL			*[8,10]	XY_MAX <= SP_x ならキャンセル
+	bcc.b	XSP_SET_ST_CANCEL		*[8,10]	XY_MAX <= SP_x ならキャンセル
 	cmpi.w	#(XY_MAX<<SHIFT),d0		*[ 8]	Y 座標画面外チェック
-	bcc.b	XSP_SET_CANCEL			*[8,10]	XY_MAX <= SP_y ならキャンセル
+	bcc.b	XSP_SET_ST_CANCEL		*[8,10]	XY_MAX <= SP_y ならキャンセル
 
 	lea	buff_pointer(pc),a2		*[ 8]	a2.l = 仮バッファポインタのポインタ
 	movea.l	(a2),a0				*[12]	a0.l = 仮バッファポインタ
 	tst.w	(a0)				*[ 8]	符号チェック
-	bmi.b	XSP_SET_RETURN			*[8,10]	負ならバッファ終点と見なし終了
+	bmi.b	XSP_SET_ST_RETURN		*[8,10]	負ならバッファ終点と見なし終了
 
 	*-------[ PUSH ]
 		.if	SHIFT<>0
@@ -141,14 +148,18 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 
 		move.l	a0,(a2)			*[12]	仮バッファポインタの保存
 
-		.if	COMPATIBLE<>0
-						*	d0.l = SP_x,SP_y
-						* 過去の動作との互換にするには swap が必要
-			swap	d0		*[ 4]	d0.w = SP_x
-		.endif
+XSP_SET_ST_RETURN:
+	.if	COMPATIBLE<>0
+					*	d0.l = SP_x,SP_y
+					* 過去の動作との互換にするには swap が必要
+		swap	d0		*[ 4]	d0.l = SP_y,SP_x
+	.endif
+					*	d0.w = SP_x
+	rts
 
-		rts
-
+XSP_SET_ST_CANCEL:
+	moveq	#0,d0			*[ 4]	画面外なので、戻り値 = 0
+	rts
 
 
 
