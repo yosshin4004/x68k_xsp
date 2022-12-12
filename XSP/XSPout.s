@@ -245,15 +245,17 @@ EXIT_GET_TOTAL_SP:
 	move.l	d0,d6
 	move.l	d0,d7
 
-					* a1.l = PR 別先頭テーブル
-	movem.l	d0-d7,$00*4(a1)
-	movem.l	d0-d7,$08*4(a1)
-	movem.l	d0-d7,$10*4(a1)
-	movem.l	d0-d7,$18*4(a1)
-	movem.l	d0-d7,$20*4(a1)
-	movem.l	d0-d7,$28*4(a1)
-	movem.l	d0-d7,$30*4(a1)
-	movem.l	d0-d7,$38*4(a1)		* 合計 64.l 初期化
+					*	a1.l = PR 別先頭テーブル
+	lea.l	$40*4(a1),a1		*[8]	a1.l = PR 別先頭テーブルの末端
+	movem.l	d0-d7,-(a1)		*[8+4n]
+	movem.l	d0-d7,-(a1)		*[8+4n]
+	movem.l	d0-d7,-(a1)		*[8+4n]
+	movem.l	d0-d7,-(a1)		*[8+4n]
+	movem.l	d0-d7,-(a1)		*[8+4n]
+	movem.l	d0-d7,-(a1)		*[8+4n]
+	movem.l	d0-d7,-(a1)		*[8+4n]
+	movem.l	d0-d7,-(a1)		*[8+4n]
+					* 合計 64.l 初期化
 
 
 *=======[ スプライト加工 & チェイン作成（非縦画面モード）]

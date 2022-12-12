@@ -21,6 +21,10 @@
 	.globl	_xsp_set_st
 	.globl	_xobj_set
 	.globl	_xobj_set_st
+	.globl	_xsp_set_asm
+	.globl	_xsp_set_st_asm
+	.globl	_xobj_set_asm
+	.globl	_xobj_set_st_asm
 	.globl	_xsp_out
 
 	.globl	_xsp_vsyncint_on
@@ -126,6 +130,46 @@ vsync_def:	ds.b	8*31
 		ds.b	8	* end_mark(-1)
 
 *--------------[ 512 枚モード用ラスタ割り込みタイムチャート ]
+*
+*	XSP 2.00 時点の実装ではラスター分割位置は固定であり、
+*	以下のような設定だった。
+*
+*	XSP_CHART_512sp_31k:		* ５１２枚　３１ＫＨｚ
+*		dc.w	32		* ラスターナンバー
+*		dc.l	sp_disp_on	* 割り込み先アドレス
+*		dc.w	24+(36+16)*2
+*		dc.l	DISP_buff_C
+*		dc.w	24+(36+32+16)*2
+*		dc.l	DISP_buff_D
+*		dc.w	24+(36+32+36+16)*2
+*		dc.l	DISP_buff_E
+*		dc.w	24+(36+32+36+32+16)*2
+*		dc.l	DISP_buff_F
+*		dc.w	24+(36+32+36+32+36+16)*2
+*		dc.l	DISP_buff_G
+*		dc.w	24+(36+32+36+32+36+32+16)*2
+*		dc.l	DISP_buff_H
+*		dc.w	-1		* end_mark
+*		dc.l	0		* ダミー
+*
+*	XSP_CHART_512sp_15k:		* ５１２枚　１５ＫＨｚ
+*		dc.w	12		* ラスターナンバー
+*		dc.l	sp_disp_on	* 割り込み先アドレス
+*		dc.w	0+(36+16)
+*		dc.l	DISP_buff_C
+*		dc.w	0+(36+32+16)
+*		dc.l	DISP_buff_D
+*		dc.w	0+(36+32+36+16)
+*		dc.l	DISP_buff_E
+*		dc.w	0+(36+32+36+32+16)
+*		dc.l	DISP_buff_F
+*		dc.w	0+(36+32+36+32+36+16)
+*		dc.l	DISP_buff_G
+*		dc.w	0+(36+32+36+32+36+32+16)
+*		dc.l	DISP_buff_H
+*		dc.w	-1		* end_mark
+*		dc.l	0		* ダミー
+*
 XSP_chart_for_512sp_31khz:
 		ds.b	6	* sp_disp_on
 		ds.b	6	* DISP_buff_C
@@ -165,6 +209,8 @@ STRUCT_SIZE	=	struct_end - struct_top
 	.even
 
 	.include	XSPset.s
+
+	.include	XSPsetas.s
 
 	.include	XSPfnc.s
 
@@ -1275,31 +1321,37 @@ UPDATE_INT_RASTER_NUMBER_FOR_31KHZ:
 
 	move.w	raster_ofs_for31khz(pc),d1		* d1.w = ラスタ割り込み位置オフセット
 
+	*-------[ DISP_buff_C ]
 	move.w	(a1)+,d0				* d0.w = divy_AB
 	add.w	d0,d0
 	add.w	d1,d0					* d0.w = divy_AB * 2 + d1
 	move.w	d0,XSP_chart_for_512sp_31khz+6*1(a0)	* ラスタナンバ書き込み
 
+	*-------[ DISP_buff_D ]
 	move.w	(a1)+,d0				* d0.w = divy_BC
 	add.w	d0,d0
 	add.w	d1,d0					* d0.w = divy_BC * 2 + d1
 	move.w	d0,XSP_chart_for_512sp_31khz+6*2(a0)	* ラスタナンバ書き込み
 
+	*-------[ DISP_buff_E ]
 	move.w	(a1)+,d0				* d0.w = divy_CD
 	add.w	d0,d0
 	add.w	d1,d0					* d0.w = divy_CD * 2 + d1
 	move.w	d0,XSP_chart_for_512sp_31khz+6*3(a0)	* ラスタナンバ書き込み
 
+	*-------[ DISP_buff_F ]
 	move.w	(a1)+,d0				* d0.w = divy_DE
 	add.w	d0,d0
 	add.w	d1,d0					* d0.w = divy_DE * 2 + d1
 	move.w	d0,XSP_chart_for_512sp_31khz+6*4(a0)	* ラスタナンバ書き込み
 
+	*-------[ DISP_buff_G ]
 	move.w	(a1)+,d0				* d0.w = divy_EF
 	add.w	d0,d0
 	add.w	d1,d0					* d0.w = divy_EF * 2 + d1
 	move.w	d0,XSP_chart_for_512sp_31khz+6*5(a0)	* ラスタナンバ書き込み
 
+	*-------[ DISP_buff_H ]
 	move.w	(a1)+,d0				* d0.w = divy_FG
 	add.w	d0,d0
 	add.w	d1,d0					* d0.w = divy_FG * 2 + d1
@@ -1328,26 +1380,32 @@ UPDATE_INT_RASTER_NUMBER_FOR_15KHZ:
 
 	move.w	raster_ofs_for15khz(pc),d1		* d1.w = ラスタ割り込み位置オフセット
 
+	*-------[ DISP_buff_C ]
 	move.w	(a1)+,d0				* d0.w = divy_AB
 	add.w	d1,d0					* d0.w = divy_AB + d1
 	move.w	d0,XSP_chart_for_512sp_15khz+6*1(a0)	* ラスタナンバ書き込み
 
+	*-------[ DISP_buff_D ]
 	move.w	(a1)+,d0				* d0.w = divy_BC
 	add.w	d1,d0					* d0.w = divy_BC + d1
 	move.w	d0,XSP_chart_for_512sp_15khz+6*2(a0)	* ラスタナンバ書き込み
 
+	*-------[ DISP_buff_E ]
 	move.w	(a1)+,d0				* d0.w = divy_CD
 	add.w	d1,d0					* d0.w = divy_CD + d1
 	move.w	d0,XSP_chart_for_512sp_15khz+6*3(a0)	* ラスタナンバ書き込み
 
+	*-------[ DISP_buff_F ]
 	move.w	(a1)+,d0				* d0.w = divy_DE
 	add.w	d1,d0					* d0.w = divy_DE + d1
 	move.w	d0,XSP_chart_for_512sp_15khz+6*4(a0)	* ラスタナンバ書き込み
 
+	*-------[ DISP_buff_G ]
 	move.w	(a1)+,d0				* d0.w = divy_EF
 	add.w	d1,d0					* d0.w = divy_EF + d1
 	move.w	d0,XSP_chart_for_512sp_15khz+6*5(a0)	* ラスタナンバ書き込み
 
+	*-------[ DISP_buff_H ]
 	move.w	(a1)+,d0				* d0.w = divy_FG
 	add.w	d1,d0					* d0.w = divy_FG + d1
 	move.w	d0,XSP_chart_for_512sp_15khz+6*6(a0)	* ラスタナンバ書き込み

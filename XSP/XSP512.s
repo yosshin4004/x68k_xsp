@@ -18,10 +18,10 @@ SORT_512_An	.macro	An
 		.local	end_mark
 
 	*=======[ ラスタ分割バッファに登録 ]
-		tst.w	(An)		*[12]	バッファチェック
-		bmi.b	end_mark	*[8,10]	負なら終点なので飛ばす
-		move.l	d0,(An)+	*[12]	x,y 転送
-		move.l	(a0)+,(An)+	*[20]	cd,pr 転送
+		tst.w	(An)			*[12]	バッファチェック
+		bmi.b	end_mark		*[8,10]	負なら終点なので飛ばす
+		move.l	d0,(An)+		*[12]	x,y 転送
+		move.l	(a0)+,(An)+		*[20]	cd,pr 転送
 		dbra	d7,SORT_512_LOOP
 @@:
 		movea.l	CHAIN_OFS-4(a0),a0	* 次の PR 鎖アドレス
@@ -46,12 +46,12 @@ SORT_512_Dn	.macro	Dn
 		.local	end_mark
 
 	*=======[ ラスタ分割バッファに登録 ]
-		movea.l	Dn,a2		*[ 4]	a2.l = Dn.l
-		tst.w	(a2)		*[12]	バッファチェック
-		bmi.b	end_mark	*[8,10]	負なら終点なので飛ばす
-		move.l	d0,(a2)+	*[12]	x,y 転送
-		move.l	(a0)+,(a2)+	*[20]	cd,pr 転送
-		move.l	a2,Dn		*[ 4]	Dn.l に戻す
+		movea.l	Dn,a2			*[ 4]	a2.l = Dn.l
+		tst.w	(a2)			*[12]	バッファチェック
+		bmi.b	end_mark		*[8,10]	負なら終点なので飛ばす
+		move.l	d0,(a2)+		*[12]	x,y 転送
+		move.l	(a0)+,(a2)+		*[20]	cd,pr 転送
+		move.l	a2,Dn			*[ 4]	Dn.l に戻す
 		dbra	d7,SORT_512_LOOP
 @@:
 		movea.l	CHAIN_OFS-4(a0),a0	* 次の PR 鎖アドレス

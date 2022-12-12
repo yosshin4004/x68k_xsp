@@ -13,6 +13,7 @@
 	PCG データ、ZAKO.src は複合スプライト形状データソースファイルです。
 */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -89,7 +90,7 @@ void main(int argc, unsigned char* argv[])
 
 		/* REF_DAT[].ptr 補正 */
 		for (i = 0; i < sizeof_ref; i++) {
-			(int)ref_dat[i].ptr += (int)(&frm_dat[0]);
+			ref_dat[i].ptr = (void *)((intptr_t)ref_dat[i].ptr + (intptr_t)(&frm_dat[0]));
 		}
 	}
 
