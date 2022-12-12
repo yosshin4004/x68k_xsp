@@ -289,8 +289,8 @@ A7ID	=	4+15*4			*   スタック上 return先アドレス  [ 4 byte ]
 	move.b	IMRA(a0),IMRA(a1)	* IMRA 保存
 	move.b	IMRB(a0),IMRB(a1)	* IMRB 保存
 
-	move.l	$118,vektor_118_bak	* 変更前の V-disp ベクタ
-	move.l	$138,vektor_138_bak	* 変更前の CRT-IRQ ベクタ
+	move.l	$118,vector_118_bak	* 変更前の V-disp ベクタ
+	move.l	$138,vector_138_bak	* 変更前の CRT-IRQ ベクタ
 	move.w	$E80012,raster_No_bak	* 変更前の CRT-IRQ ラスタ No.
 
 *-------[ V-DISP 割り込み設定 ]
@@ -385,8 +385,8 @@ A7ID	=	4+15*4			*   スタック上 return先アドレス  [ 4 byte ]
 	andi.b	#%1011_1111,IMRB(a0)
 	or.b	d0,IMRB(a0)		* IMRB bit6 復活
 
-	move.l	vektor_118_bak(pc),$118		* V-disp ベクタ復活
-	move.l	vektor_138_bak(pc),$138		* CRT-IRQ ベクタ復活
+	move.l	vector_118_bak(pc),$118		* V-disp ベクタ復活
+	move.l	vector_138_bak(pc),$138		* CRT-IRQ ベクタ復活
 	move.w	raster_No_bak(pc),$E80012	* CRT-IRQ ラスタ No. 復活
 
 *------------------------------
@@ -511,8 +511,8 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 		lea.l	divy_AB(pc),a0		* a0.l = #divy_AB
 		move.w	(a0,d0.w),d0		* dl.w = *(short *)(#divy_AB + i * 2)
 		rts
-
 @@:
+
 	move.w	#-1, d0			* 無効な引数の場合はエラーとして -1 を返す
 	rts
 

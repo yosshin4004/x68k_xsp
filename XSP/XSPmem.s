@@ -2,8 +2,8 @@
 	.text
 	.even
 
-vektor_118_bak:	dc.l	0			* 変更前の V-disp ベクタ
-vektor_138_bak:	dc.l	0			* 変更前の CRT-IRQ ベクタ
+vector_118_bak:	dc.l	0			* 変更前の V-disp ベクタ
+vector_138_bak:	dc.l	0			* 変更前の CRT-IRQ ベクタ
 raster_No_bak:	dc.w	0			* 変更前の CRT-IRQ ラスタ No.
 MFP_bak:	dcb.b	$18,0			* 変更前の MFP
 
