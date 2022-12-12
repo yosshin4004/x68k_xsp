@@ -512,6 +512,7 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 		move.w	(a0,d0.w),d0		* dl.w = *(short *)(#divy_AB + i * 2)
 		rts
 
+@@:
 	move.w	#-1, d0			* 無効な引数の場合はエラーとして -1 を返す
 	rts
 
