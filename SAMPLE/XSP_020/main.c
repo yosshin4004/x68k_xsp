@@ -95,7 +95,7 @@ struct {
 	short	info;		/* 反転コード・色・優先度を表すデータ */
 	short	vx, vy;		/* 移動量 */
 	int		dummy;		/* 高速化のため構造体サイズをパディング */
-} SP[512];
+} panel[512];
 
 
 /*-------------------------------------[ MAIN ]---------------------------------------*/
@@ -158,6 +158,11 @@ void main()
 	/*------------------[ PCG データ読み込み ]------------------*/
 
 	fp = fopen("../PANEL.SP", "rb");
+	if (fp == NULL) {
+		CRTMOD(0x10);
+		printf("../PANEL.SP が open できません。\n");
+		exit(1);
+	}
 	fread(
 		pcg_dat,
 		128,		/* 1PCG = 128byte */
@@ -170,6 +175,11 @@ void main()
 	/*--------[ スプライトパレットデータ読み込みと定義 ]--------*/
 
 	fp = fopen("../PANEL.PAL", "rb");
+	if (fp == NULL) {
+		CRTMOD(0x10);
+		printf("../PANEL.PAL が open できません。\n");
+		exit(1);
+	}
 	fread(
 		pal_dat,
 		2,			/* 1color = 2byte */
@@ -329,12 +339,12 @@ void main()
 	/*--------------[ キャラクタ 512 個分初期化 ]---------------*/
 
 	for (i = 0; i < 512; i++) {
-		SP[i].x		= ((rand() / 16 & 255) + 8) * 64;	/* X 座標初期化 */
-		SP[i].y		= ((rand() / 16 & 255) + 8) * 64;	/* Y 座標初期化 */
-		SP[i].pt	= i & 7;							/* スプライトパターン No. を初期化 */
-		SP[i].info	= 0x138 + (i & 7) * 0x101;			/* カラー 1、優先度 0x38 ～ 0x3F */
-		SP[i].vx	= (rand() / 16 & 127) - 64;			/* X 方向移動量 */
-		SP[i].vy	= (rand() / 16 & 127) - 64;			/* Y 方向移動量 */
+		panel[i].x		= ((rand() / 16 & 255) + 8) * 64;	/* X 座標初期化 */
+		panel[i].y		= ((rand() / 16 & 255) + 8) * 64;	/* Y 座標初期化 */
+		panel[i].pt		= i & 7;							/* スプライトパターン No. を初期化 */
+		panel[i].info	= 0x138 + (i & 7) * 0x101;			/* カラー 1、優先度 0x38 ～ 0x3F */
+		panel[i].vx		= (rand() / 16 & 127) - 64;			/* X 方向移動量 */
+		panel[i].vy		= (rand() / 16 & 127) - 64;			/* Y 方向移動量 */
 	}
 
 
@@ -353,7 +363,7 @@ void main()
 	/*----------[ ラスタスクロール用 sin テーブル作成 ]---------*/
 
 	for (i = 0; i < 256; i++) {
-		wave[i] = sin( 3.1415926535898 * (double)i / 128 ) * 64;
+		wave[i] = sin(3.1415926535898 * (double)i / 128) * 64;
 	}
 
 
@@ -380,20 +390,20 @@ void main()
 
 		/* 半分は単体スプライトで表示 */
 		for (i = 0; i < panel_max / 2; i++) {
-			SP[i].x += SP[i].vx;
-			SP[i].y += SP[i].vy;
-			xsp_set(SP[i].x >> 6, SP[i].y >> 6, SP[i].pt, SP[i].info);
-			if (SP[i].x <= 0 || 0x110 * 64 <= SP[i].x) SP[i].vx =- SP[i].vx;
-			if (SP[i].y <= 0 || 0x110 * 64 <= SP[i].y) SP[i].vy =- SP[i].vy;
+			panel[i].x += panel[i].vx;
+			panel[i].y += panel[i].vy;
+			xsp_set(panel[i].x >> 6, panel[i].y >> 6, panel[i].pt, panel[i].info);
+			if (panel[i].x <= 0 || 0x110 * 64 <= panel[i].x) panel[i].vx =- panel[i].vx;
+			if (panel[i].y <= 0 || 0x110 * 64 <= panel[i].y) panel[i].vy =- panel[i].vy;
 		}
 
 		/* 半分は複合スプライトで表示 */
 		for (i = panel_max / 2; i < panel_max; i++) {
-			SP[i].x += SP[i].vx;
-			SP[i].y += SP[i].vy;
-			xobj_set(SP[i].x >> 6, SP[i].y >> 6, SP[i].pt, SP[i].info);
-			if (SP[i].x <= 0 || 0x110 * 64 <= SP[i].x) SP[i].vx =- SP[i].vx;
-			if (SP[i].y <= 0 || 0x110 * 64 <= SP[i].y) SP[i].vy =- SP[i].vy;
+			panel[i].x += panel[i].vx;
+			panel[i].y += panel[i].vy;
+			xobj_set(panel[i].x >> 6, panel[i].y >> 6, panel[i].pt, panel[i].info);
+			if (panel[i].x <= 0 || 0x110 * 64 <= panel[i].x) panel[i].vx =- panel[i].vx;
+			if (panel[i].y <= 0 || 0x110 * 64 <= panel[i].y) panel[i].vy =- panel[i].vy;
 		}
 
 		/* ラスタ分割 Y 座標に矢印表示（デバッグ用）*/

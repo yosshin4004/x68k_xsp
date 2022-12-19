@@ -21,8 +21,6 @@
 #include <iocslib.h>
 #include "../../XSP/XSP2lib.H"
 
-FILE *chk_open(char *fname, char *mode);
-
 /* スプライト PCG パターン最大使用数 */
 #define		PCG_MAX		2048
 
@@ -61,7 +59,7 @@ void main(int argc, unsigned char* argv[])
 		short	x, y;		/* 座標 */
 		short	pt;			/* スプライトパターン No. */
 		short	info;		/* 反転コード・色・優先度を表すデータ */
-	} MYCHARA;
+	} player;
 
 
 	/*----------[ コマンドライン解析～ファイル読み込み ]----------*/
@@ -75,15 +73,30 @@ void main(int argc, unsigned char* argv[])
 
 		/* ファイル読み込み */
 		strmfe(str_tmp, argv[1], "xsp");		/* 拡張子置換 */
-		fp = chk_open(str_tmp, "rb");
+		fp = fopen(str_tmp, "rb");
+		if (fp == NULL) {
+			CRTMOD(0x10);
+			printf("%s が open できません。\n", str_tmp);
+			exit(1);
+		}
 		fread(pcg_dat, sizeof(char), 128 * PCG_MAX, fp);
 
 		strmfe(str_tmp, argv[1], "frm");		/* 拡張子置換 */
-		fp = chk_open(str_tmp, "rb");
+		fp = fopen(str_tmp, "rb");
+		if (fp == NULL) {
+			CRTMOD(0x10);
+			printf("%s が open できません。\n", str_tmp);
+			exit(1);
+		}
 		fread(frm_dat, sizeof(XOBJ_FRM_DAT), FRM_MAX, fp);
 
 		strmfe(str_tmp, argv[1], "ref");		/* 拡張子置換 */
-		fp = chk_open(str_tmp, "rb");
+		fp = fopen(str_tmp, "rb");
+		if (fp == NULL) {
+			CRTMOD(0x10);
+			printf("%s が open できません。\n", str_tmp);
+			exit(1);
+		}
 		sizeof_ref = fread(ref_dat, sizeof(XOBJ_REF_DAT), REF_MAX, fp);
 
 		fcloseall();
@@ -128,10 +141,10 @@ void main(int argc, unsigned char* argv[])
 	/*==========================[ スティックで操作するデモ ]============================*/
 
 	/* 初期化 */
-	MYCHARA.x		= 0x88;		/* X 座標初期値 */
-	MYCHARA.y		= 0x88;		/* Y 座標初期値 */
-	MYCHARA.pt		= 0;		/* スプライトパターン No. */
-	MYCHARA.info	= 0x013F;	/* 反転コード・色・優先度を表すデータ */
+	player.x	= 0x88;		/* X 座標初期値 */
+	player.y	= 0x88;		/* Y 座標初期値 */
+	player.pt	= 0;		/* スプライトパターン No. */
+	player.info	= 0x013F;	/* 反転コード・色・優先度を表すデータ */
 
 
 	/* 何かキーを押すまでループ */
@@ -146,10 +159,10 @@ void main(int argc, unsigned char* argv[])
 		/* スティックの入力に合せて移動 */
 		pre_stk = stk;		/* 前回のスティックの内容 */
 		stk = JOYGET(0);	/* 今回のスティックの内容 */
-		if ((stk & 1) == 0) MYCHARA.y -= 1;		/* 上に移動 */
-		if ((stk & 2) == 0) MYCHARA.y += 1;		/* 下に移動 */
-		if ((stk & 4) == 0) MYCHARA.x -= 1;		/* 左に移動 */
-		if ((stk & 8) == 0) MYCHARA.x += 1;		/* 右に移動 */
+		if ((stk & 1) == 0) player.y -= 1;		/* 上に移動 */
+		if ((stk & 2) == 0) player.y += 1;		/* 下に移動 */
+		if ((stk & 4) == 0) player.x -= 1;		/* 左に移動 */
+		if ((stk & 8) == 0) player.x += 1;		/* 右に移動 */
 
 		/* トリガ長押し期間測定 */
 		if ((stk & 0x60) == (pre_stk & 0x60)) {
@@ -160,29 +173,29 @@ void main(int argc, unsigned char* argv[])
 
 		/* トリガー 2 が押されたらパターン変更 */
 		if ((stk & 0x20) == 0  &&  ((pre_stk & 0x20) != 0  ||  timer > 32)) {
-			MYCHARA.pt++;
-			if (MYCHARA.pt >= sizeof_ref) MYCHARA.pt = 0;
+			player.pt++;
+			if (player.pt >= sizeof_ref) player.pt = 0;
 		}
 
 		/* トリガー 1 が押されたら色変更 */
 		if ((stk & 0x40) == 0  &&  ((pre_stk & 0x40) != 0  ||  timer > 32)) {
-			if ((MYCHARA.info & 0x0F00) == 0x0F00) {
-				MYCHARA.info &= 0xF0FF;		/* カラーコードを 0 に戻す */
+			if ((player.info & 0x0F00) == 0x0F00) {
+				player.info &= 0xF0FF;		/* カラーコードを 0 に戻す */
 			} else {
-				MYCHARA.info += 0x100;		/* カラーコードを 1 加算 */
+				player.info += 0x100;		/* カラーコードを 1 加算 */
 			}
 		}
 
 		/* pt info を画面に表示 */
 		B_LOCATE(0, 0);
-		printf("  pt = %3X \n", MYCHARA.pt);
-		printf("info = %3X \n", MYCHARA.info);
+		printf("  pt = %3X \n", player.pt);
+		printf("info = %3X \n", player.info);
 
 		/* スプライトの表示登録 */
-		xobj_set(MYCHARA.x, MYCHARA.y, MYCHARA.pt, MYCHARA.info);
+		xobj_set(player.x, player.y, player.pt, player.info);
 		/*
 			↑ここは、
-			xobj_set_st(&MYCHARA);
+			xobj_set_st(&player);
 			と記述すれば、より高速に実行できる。
 		*/
 
@@ -198,30 +211,6 @@ void main(int argc, unsigned char* argv[])
 
 	/* 画面モードを戻す */
 	CRTMOD(0x10);
-}
-
-
-/*
-	ファイル名エラー検出機能付きの fopen() 関数
-*/
-FILE *chk_open(
-	char *fname,	/* ファイル名 */
-	char *mode		/* モード */
-){
-	FILE	*fp;
-
-	fp = fopen(fname, mode);
-	if (fp == (FILE*)0) {
-		fcloseall();
-		printf("\n");
-		printf("	%s が open できませんでした。\n", fname);
-		printf("	強制終了します。\n\n");
-		printf("	（何かキーを押して下さい。）\n");
-		while (INPOUT(0xFF) == 0) {}
-		exit(0);
-	}
-
-	return(fp);
 }
 
 

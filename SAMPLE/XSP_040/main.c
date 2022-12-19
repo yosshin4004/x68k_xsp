@@ -39,7 +39,7 @@ void main()
 		short	x, y;		/* 座標 */
 		short	pt;			/* スプライトパターン No. */
 		short	info;		/* 反転コード・色・優先度を表すデータ */
-	} MYCHARA;
+	} player;
 
 
 	/*---------------------[ 画面を初期化 ]---------------------*/
@@ -66,6 +66,11 @@ void main()
 	/*------------------[ PCG データ読み込み ]------------------*/
 
 	fp = fopen("../PANEL.SP", "rb");
+	if (fp == NULL) {
+		CRTMOD(0x10);
+		printf("../PANEL.SP が open できません。\n");
+		exit(1);
+	}
 	fread(
 		pcg_dat,
 		128,		/* 1PCG = 128byte */
@@ -83,6 +88,11 @@ void main()
 	/*--------[ スプライトパレットデータ読み込みと定義 ]--------*/
 
 	fp = fopen("../PANEL.PAL", "rb");
+	if (fp == NULL) {
+		CRTMOD(0x10);
+		printf("../PANEL.PAL が open できません。\n");
+		exit(1);
+	}
 	fread(
 		pal_dat,
 		2,			/* 1color = 2byte */
@@ -112,10 +122,10 @@ void main()
 	/*===========================[ スティックで操作するデモ ]=============================*/
 
 	/* 初期化 */
-	MYCHARA.x		= 0x88;		/* X 座標初期値 */
-	MYCHARA.y		= 0x88;		/* Y 座標初期値 */
-	MYCHARA.pt		= 0;		/* スプライトパターン No. */
-	MYCHARA.info	= 0x013F;	/* 反転コード・色・優先度を表すデータ */
+	player.x	= 0x88;		/* X 座標初期値 */
+	player.y	= 0x88;		/* Y 座標初期値 */
+	player.pt	= 0;		/* スプライトパターン No. */
+	player.info	= 0x013F;	/* 反転コード・色・優先度を表すデータ */
 
 	/* 何かキーを押すまでループ */
 	while (INPOUT(0xFF) == 0) {
@@ -126,16 +136,16 @@ void main()
 
 		/* スティックの入力に合せて移動 */
 		stk = JOYGET(0);
-		if ((stk & 1) == 0  &&  MYCHARA.y > 0x010) MYCHARA.y -= 1;	/* 上に移動 */
-		if ((stk & 2) == 0  &&  MYCHARA.y < 0x100) MYCHARA.y += 1;	/* 下に移動 */
-		if ((stk & 4) == 0  &&  MYCHARA.x > 0x010) MYCHARA.x -= 1;	/* 左に移動 */
-		if ((stk & 8) == 0  &&  MYCHARA.x < 0x100) MYCHARA.x += 1;	/* 右に移動 */
+		if ((stk & 1) == 0  &&  player.y > 0x010) player.y -= 1;	/* 上に移動 */
+		if ((stk & 2) == 0  &&  player.y < 0x100) player.y += 1;	/* 下に移動 */
+		if ((stk & 4) == 0  &&  player.x > 0x010) player.x -= 1;	/* 左に移動 */
+		if ((stk & 8) == 0  &&  player.x < 0x100) player.x += 1;	/* 右に移動 */
 
 		/* スプライトの表示登録 */
-		xsp_set(MYCHARA.x, MYCHARA.y, MYCHARA.pt, MYCHARA.info);
+		xsp_set(player.x, player.y, player.pt, player.info);
 		/*
 			↑ここは、
-				xsp_set_st(&MYCHARA);
+				xsp_set_st(&player);
 			と記述すれば、より高速に実行できる。
 		*/
 
