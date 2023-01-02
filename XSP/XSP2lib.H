@@ -117,6 +117,7 @@ void	xobj_set_st(const void *arg);
 	}
 #endif
 short	xsp_out();
+short	xsp_out2(void *vsyncint_arg);
 void	xsp_vertical(short flag);
 
 void	xsp_vsyncint_on(void *proc);

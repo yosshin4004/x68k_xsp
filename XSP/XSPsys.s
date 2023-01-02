@@ -26,6 +26,7 @@
 	.globl	_xobj_set_asm
 	.globl	_xobj_set_st_asm
 	.globl	_xsp_out
+	.globl	_xsp_out2
 
 	.globl	_xsp_vsyncint_on
 	.globl	_xsp_vsyncint_off
@@ -124,6 +125,9 @@ buff_sp_total:	ds.w	1
 
 *--------------[ ラスタ別分割バッファの先頭アドレス ]
 div_buff:	ds.l	1
+
+*--------------[ 帰線期間割り込みの引数 ]
+vsyncint_arg:	ds.l	1
 
 *--------------[ 帰線期間 PCG 定義要求バッファ ]
 vsync_def:	ds.b	8*31
@@ -355,8 +359,11 @@ RAS_INT_init_END:
 
 
 *=======[ ユーザー指定帰線期間割り込みサブルーチンの実行 ]
+	movea.l	disp_struct(pc),a0	* a0.l = 表示用バッファ管理構造体アドレス
+	move.l	vsyncint_arg(a0),-(sp)	* 引数 push
 	movea.l	vsyncint_sub(pc),a0
 	jsr	(a0)
+	addq.w	#4,sp			* スタック補正
 
 
 *=======[ スプライト表示 ]
@@ -1219,6 +1226,10 @@ XSP_BUFF_INIT:
 	move.l	#div_buff_0A_no_pc,div_buff(a0)
 	move.l	#div_buff_1A_no_pc,div_buff(a1)
 	move.l	#div_buff_2A_no_pc,div_buff(a2)
+
+	move.l	d0,vsyncint_arg(a0)
+	move.l	d0,vsyncint_arg(a1)
+	move.l	d0,vsyncint_arg(a2)
 
 	moveq.l	#-1,d0
 	move.l	d0,vsync_def(a0)
