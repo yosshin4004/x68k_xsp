@@ -382,6 +382,19 @@ VERTICAL_MODE:
 	move.l	(a0),d0			*[12]	d0.l = 最初の x , y
 	neg.w	d0			*[ 4]	d0.w =- d0.w
 	add.w	a2,d0			*[ 4]	d0.w += XY_MAX
+	.if	SHIFT<>0
+					*	SHIFT が 0 で無いとき、xsp_set 系関数にて、
+					*	スプライト座標の固定少数のシフトを 32bit 長で
+					*	行う最適化の都合、元の x 座標の下位ビットが
+					*	y 座標の上位ビットに漏れ出し、y 座標に負の値が
+					*	生じる。この状態のまま縦画面モードの x y 軸
+					*	交換をすると、x 座標に負の値が生じ、end mark
+					*	と誤認識される。これを回避するため、y 座標上位
+					*	ビットのクリアが必要になる。
+					*	このオーバーヘッドは、縦画面モードの時だけ
+					*	生じる。
+		andi.w	#511,d0		*[ 8]	y 座標上位ビットのクリア
+	.endif
 	swap	d0			*[ 4]	x,y 交換
 	move.l	d0,(a0)+		*[12]	加工済み x,y 転送
 
@@ -410,6 +423,9 @@ REQ_PCGDEF_v:
 	move.l	(a0),d0			*[12]	d0.l = x , y
 	neg.w	d0			*[ 4]	d0.w = -d0.w
 	add.w	a2,d0			*[ 4]	d0.w += XY_MAX
+	.if	SHIFT<>0
+		andi.w	#511,d0		*[ 8]	y 座標上位ビットのクリア
+	.endif
 	swap	d0			*[ 4]	x,y 交換
 	move.l	d0,(a0)+		*[12]	加工済み x,y 転送
 
@@ -440,6 +456,9 @@ MK_CHAIN_LOOP_v:
 	move.l	(a0),d0			*[12]	d0.l = x , y
 	neg.w	d0			*[ 4]	d0.w = -d0.w
 	add.w	a2,d0			*[ 4]	d0.w += XY_MAX
+	.if	SHIFT<>0
+		andi.w	#511,d0		*[ 8]	y 座標上位ビットのクリア
+	.endif
 	swap	d0			*[ 4]	x,y 交換
 	move.l	d0,(a0)+		*[12]	加工済み x,y 転送
 

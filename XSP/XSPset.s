@@ -75,6 +75,8 @@ XSP_SET_RETURN:
 	*-------[ PUSH ]
 		.if	SHIFT<>0
 			lsr.l	#SHIFT,d0	*[8+2n]	固定小数ビット数分のシフト
+						*	SP_x の下位ビットが SP_y 上位ビットに
+						*	漏れだすので注意。
 		.endif
 
 		move.l	d0,(a0)+		*[12]	SP_x,SP_y を転送
@@ -141,6 +143,8 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 	*-------[ PUSH ]
 		.if	SHIFT<>0
 			lsr.l	#SHIFT,d0	*[8+2n]	固定小数ビット数分のシフト
+						*	SP_x の下位ビットが SP_y 上位ビットに
+						*	漏れだすので注意。
 		.endif
 
 		move.l	d0,(a0)+		*[12]	SP_x,SP_y を転送
