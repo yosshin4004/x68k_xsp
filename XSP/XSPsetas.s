@@ -9,7 +9,7 @@
 *		d3.w = SP_info : 反転コード・色・表示優先度を表すデータ
 *
 *	破壊：
-*		d0 d1 a0
+*		d0 a0
 *
 *	戻り値：
 *		d0.w
@@ -26,6 +26,7 @@ _xsp_set_asm:
 
 	cmpi.w	#(XY_MAX<<SHIFT),d0	*[ 8]	X 座標画面外チェック
 	bcc.b	XSP_SET_ASM_CANCEL	*[8,10]	XY_MAX <= SP_x ならキャンセル
+
 	cmpi.w	#(XY_MAX<<SHIFT),d1	*[ 8]	Y 座標画面外チェック
 	bcc.b	XSP_SET_ASM_CANCEL	*[8,10]	XY_MAX <= SP_y ならキャンセル
 
@@ -35,12 +36,23 @@ _xsp_set_asm:
 
 	*-------[ PUSH ]
 		.if	SHIFT<>0
-			asr.w	#SHIFT,d0	*[6+2n]	固定小数ビット数分のシフト
-			asr.w	#SHIFT,d1	*[6+2n]	固定小数ビット数分のシフト
+						*	d1 をビットシフトしないことで
+						*	破壊レジスタを減らすことができる。
+			swap	d0		*[ 4]	d0.l = SP_x,????
+			move.w	d1,d0		*[ 4]	d0.l = SP_x,SP_y
+			lsr.l	#SHIFT,d0	*[8+2n]	固定小数ビット数分のシフト
+						*	SP_x の下位ビットが SP_y 上位ビットに
+						*	漏れだすので注意。
+			move.l	d0,(a0)+	*[12]	SP_x,SP_y を転送
+			.if	COMPATIBLE<>0
+						*	d0.l = SP_x,SP_y
+						* 過去の動作との互換にするには swap が必要
+				swap	d0	*[ 4]	d0.l = SP_y,SP_x
+			.endif
+		.else
+			move.w	d0,(a0)+	*[ 8]	SP_x を転送
+			move.w	d1,(a0)+	*[ 8]	SP_y を転送
 		.endif
-
-		move.w	d0,(a0)+		*[ 8]	SP_x を転送
-		move.w	d1,(a0)+		*[ 8]	SP_y を転送
 		move.w	d2,(a0)+		*[ 8]	SP_pt を転送
 		move.w	d3,(a0)+		*[ 8]	SP_info を転送
 
@@ -98,6 +110,8 @@ _xsp_set_st_asm:
 	*-------[ PUSH ]
 		.if	SHIFT<>0
 			lsr.l	#SHIFT,d0	*[8+2n]	固定小数ビット数分のシフト
+						*	SP_x の下位ビットが SP_y 上位ビットに
+						*	漏れだすので注意。
 		.endif
 
 		move.l	d0,(a1)+		*[12]	SP_x,SP_y を転送

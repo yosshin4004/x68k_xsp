@@ -65,9 +65,9 @@ void	xobj_set_st(const void *arg);
 		register short reg_d3 asm ("d3") = info;
 		asm volatile (
 				"	jbsr	_xsp_set_asm\n"
-		:	/* 出力 */	"+r"	(reg_d0),	/* in out %0 (入力＆戻り値) */
-						"+r"	(reg_d1)	/* in out %1 (入力＆破壊) */
-		:	/* 入力 */	"r"		(reg_d2),	/* in     %2 (入力＆維持) */
+		:	/* 出力 */	"+r"	(reg_d0)	/* in out %0 (入力＆戻り値) */
+		:	/* 入力 */	"r"		(reg_d1),	/* in     %1 (入力＆維持) */
+						"r"		(reg_d2),	/* in     %2 (入力＆維持) */
 						"r"		(reg_d3)	/* in     %3 (入力＆維持) */
 		:	/* 破壊 */	"a0"
 		);

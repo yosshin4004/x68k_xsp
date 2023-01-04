@@ -23,10 +23,10 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 	* 
 
 	move.w	A7ID+arg1_w(sp),d0	*[12]	d0.w = SP_x
-	move.w	A7ID+arg2_w(sp),d1	*[12]	d1.w = SP_y
-
 	cmpi.w	#(XY_MAX<<SHIFT),d0	*[ 8]	X 座標画面外チェック
 	bcc.b	XSP_SET_CANCEL		*[8,10]	XY_MAX <= SP_x ならキャンセル
+
+	move.w	A7ID+arg2_w(sp),d1	*[12]	d1.w = SP_y
 	cmpi.w	#(XY_MAX<<SHIFT),d1	*[ 8]	Y 座標画面外チェック
 	bcc.b	XSP_SET_CANCEL		*[8,10]	XY_MAX <= SP_y ならキャンセル
 
@@ -59,11 +59,11 @@ XSP_SET_RETURN:
 	* 
 
 	move.w	A7ID+arg1_w(sp),d0		*[12]	d0.w = SP_x
+	cmpi.w	#(XY_MAX<<SHIFT),d0		*[ 8]	X 座標画面外チェック
+	bcc.b	XSP_SET_CANCEL			*[8,10]	XY_MAX <= SP_x ならキャンセル
+
 	swap	d0				*[ 4]	d0.l = SP_x,????
 	move.w	A7ID+arg2_w(sp),d0		*[12]	d0.l = SP_x,SP_y
-
-	cmpi.l	#(XY_MAX<<(SHIFT+16)),d0	*[14]	X 座標画面外チェック
-	bcc.b	XSP_SET_CANCEL			*[8,10]	XY_MAX <= SP_x ならキャンセル
 	cmpi.w	#(XY_MAX<<SHIFT),d0		*[ 8]	Y 座標画面外チェック
 	bcc.b	XSP_SET_CANCEL			*[8,10]	XY_MAX <= SP_y ならキャンセル
 
