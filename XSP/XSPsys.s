@@ -1465,7 +1465,7 @@ ADJUST_DIV_Y_SUB	.macro	reg1, reg2, divy_01, divy_12, divy_23, SORT_512_1, SORT_
 	cmp.w	reg1,reg2
 	ble.b	else					* 符号考慮 (バッファ1 使用数 >= バッファ2 使用数) なら bra
 	*-------[ バッファ1 使用数 < バッファ2 使用数 ]
-		move.w	divy_12(pc),d0			: d0.w = divy_12
+		move.w	divy_12(pc),d0			* d0.w = divy_12
 		move.w	divy_23(pc),d1			* d1.w = divy_23
 		sub.w	min_divh(pc),d1			* d1.w = divy_23 - min_divh
 		cmp.w	d0,d1
@@ -1638,4 +1638,3 @@ WAIT:
 
 
 
-
