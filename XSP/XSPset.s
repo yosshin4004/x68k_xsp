@@ -14,8 +14,10 @@
 
 _xsp_set:
 
-A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
-					* + 退避レジスタの全バイト数     [ 0 byte ]
+A7ID	=	4+1*4			*   スタック上 return先アドレス  [ 4 byte ]
+					* + 退避レジスタの全バイト数     [ 1*4 byte ]
+					
+	move.l	a2, -(sp)		*[12]	レジスタ退避
 
 .if	SHIFT==0
 	* 
@@ -51,6 +53,8 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 
 XSP_SET_RETURN:
 					*	d0.w = SP_x
+					
+	move.l	(sp)+,a2		*[12]	レジスタ復活
 	rts
 
 .else
@@ -92,6 +96,7 @@ XSP_SET_RETURN:
 		swap	d0		*[ 4]	d0.l = SP_y,SP_x
 	.endif
 					*	d0.w = SP_x
+	move.l	(sp)+,a2		*[12]	レジスタ復活
 	rts
 
 .endif
@@ -99,6 +104,7 @@ XSP_SET_RETURN:
 
 XSP_SET_CANCEL:
 	moveq	#0,d0			*[ 4]	画面外なので、戻り値 = 0
+	move.l	(sp)+,a2		*[12]	レジスタ復活
 	rts
 
 
@@ -123,8 +129,10 @@ XSP_SET_CANCEL:
 
 _xsp_set_st:
 
-A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
-					* + 退避レジスタの全バイト数     [ 0 byte ]
+A7ID	=	4+1*4			*   スタック上 return先アドレス  [ 4 byte ]
+					* + 退避レジスタの全バイト数     [ 1*4 byte ]
+					
+	move.l	a2, -(sp)		*[12]	レジスタ退避
 
 	move.l	A7ID+arg1_l(sp),a1		*[16]	a1.l = 構造体アドレス
 
@@ -159,10 +167,12 @@ XSP_SET_ST_RETURN:
 		swap	d0		*[ 4]	d0.l = SP_y,SP_x
 	.endif
 					*	d0.w = SP_x
+	move.l	(sp)+,a2		*[12]	レジスタ復活
 	rts
 
 XSP_SET_ST_CANCEL:
 	moveq	#0,d0			*[ 4]	画面外なので、戻り値 = 0
+	move.l	(sp)+,a2		*[12]	レジスタ復活
 	rts
 
 
@@ -249,6 +259,7 @@ OBJ_LOOP:
 
 EXIT_OBJ_LOOP:
 	*-------[ 終了 ]
+		move.l	(sp)+,a2		* a2.l 復活
 		move.w	(sp)+,d4		* d4.w 復活
 		move.w	(sp)+,d3		* d3.w 復活
 		move.l	a0,buff_pointer		* バッファポインタ保存
@@ -271,6 +282,7 @@ SKIP_OBJ_PUSH_2:
 
 
 OBJ_SET_RETURN:
+	move.l	(sp)+,a2		* a2.l 復活
 	move.w	(sp)+,d4		* d4.w 復活
 	move.w	(sp)+,d3		* d3.w 復活
 	rts
@@ -278,11 +290,12 @@ OBJ_SET_RETURN:
 
 _xobj_set:
 
-A7ID	=	4+2*2			*   スタック上 return先アドレス  [ 4 byte ]
-					* + 退避レジスタの全バイト数     [ 2*2 byte ]
+A7ID	=	4+2*2+1*4		*   スタック上 return先アドレス  [ 4 byte ]
+					* + 退避レジスタの全バイト数     [ 2*2+1*4 byte ]
 
 	move.w	d3,-(sp)		* d3.w 退避
 	move.w	d4,-(sp)		* d4.w 退避
+	move.l	a2,-(sp)		* a2.l 退避
 
 	move.w	A7ID+arg3_w(sp),d1	*[12] d1.w = 複合スプライト pt
 	move.w	A7ID+arg4_w(sp),d2	*[12] d2.w = SP_info
@@ -383,11 +396,12 @@ RV_1x:		add.w	d1,d1
 
 _xobj_set_st:
 
-A7ID	=	4+2*2			*   スタック上 return先アドレス  [ 4 byte ]
-					* + 退避レジスタの全バイト数     [ 2*2 byte ]
+A7ID	=	4+2*2+1*4		*   スタック上 return先アドレス  [ 4 byte ]
+					* + 退避レジスタの全バイト数     [ 2*2+1*4 byte ]
 
 	move.w	d3,-(sp)		* d3.w 退避
 	move.w	d4,-(sp)		* d4.w 退避
+	move.l	a2,-(sp)		* a2.l 退避
 
 *-------[ パラメータ受取 ]
 	movea.l	A7ID+arg1_l(sp),a0	* a0.l = 構造体アドレス
