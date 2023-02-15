@@ -37,10 +37,14 @@ sp_mode:	dc.w	2			* XSP のモード（1～3）
 
 R65535:		dc.w	0			* システム内部カウンタ
 
-write_struct:	dc.l	XSP_STRUCT_no_pc	* 書換用バッファ管理構造体アドレス
-disp_struct:	dc.l	XSP_STRUCT_no_pc	* 表示用バッファ管理構造体アドレス
+write_struct:		dc.l	XSP_STRUCT_no_pc+STRUCT_SIZE	* 書換用バッファ管理構造体アドレス
+disp_struct:		dc.l	XSP_STRUCT_no_pc		* 表示用バッファ管理構造体アドレス
+penging_disp_count:	dc.w	0				* 保留状態の表示リクエスト数
 
-vsync_count:	dc.w	0			* 帰線期間が来たらインクリする
+vsync_count:	dc.w	0			* 帰線期間の度にインクリメントされる
+
+vsync_interval_count_max:	dc.w	1	* vsync_interval カウンタ max 値
+vsync_interval_count_down:	dc.w	1	* vsync_interval カウントダウン
 
 sp_ref_adr:	dc.l	0			* 複合スプライトのリファレンスデータへのポインタ
 

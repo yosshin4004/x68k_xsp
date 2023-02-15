@@ -9,19 +9,8 @@ _xsp_out2:
 A7ID	=	4+0*4			*   スタック上 return先アドレス  [ 4 byte ]
 					* + 退避レジスタの全バイト数     [ 0*4 byte ]
 
-*=======[ XSP 初期化チェック ]
-	cmpi.b	#%0000_0011,XSP_flg
-	beq.b	@F			* XSP が正しく初期化されているなら bra
-
-	*-------[ 正しく初期化されていない ]
-		moveq.l	#-1,d0		* 戻り値 = ｰ1
-		rts			* 何もせず rts
-
-@@:
-
-*=======[ 引数の取得 ]
-	move.l	write_struct(pc),a0			* a0.l = 書換用バッファ管理構造体
-	move.l	A7ID+arg1_l(sp),vsyncint_arg(a0)	* vsyncint_arg を保存
+*=======[ vsyncint_arg を取得 ]
+	movea.l	A7ID+arg1_l(sp),a1	* a1.l = vsyncint_arg
 
 *=======[ xsp_out に飛ぶ ]
 	bra.b	xsp_out_entry
@@ -39,6 +28,10 @@ _xsp_out:
 A7ID	=	4+11*4			*   スタック上 return先アドレス  [ 4 byte ]
 					* + 退避レジスタの全バイト数     [ 11*4 byte ]
 
+*=======[ vsyncint_arg を取得（存在しないので NULL）]
+	suba.l	a1,a1			* a1.l = vsyncint_arg = NULL
+
+xsp_out_entry:
 *=======[ XSP 初期化チェック ]
 	cmpi.b	#%0000_0011,XSP_flg
 	beq.b	@F			* XSP が正しく初期化されているなら bra
@@ -49,8 +42,15 @@ A7ID	=	4+11*4			*   スタック上 return先アドレス  [ 4 byte ]
 
 @@:
 
+*=======[ 書換用バッファが利用可能になるまで待つ ]
+					* a1.l = vsyncint_arg
+wait_until_write_struct_is_free:
+	move.l	write_struct(pc),a0			* a0.l = 書換用バッファ管理構造体
+	cmpa.l	disp_struct(pc),a0			* 表示用バッファ管理構造体と重なっているか？
+	beq.b	wait_until_write_struct_is_free		* 重なっているなら表示用バッファが変更されるまで待つ。
+	move.l	a1,vsyncint_arg(a0)			* vsyncint_arg を保存
+
 *=======[ レジスタ退避など ]
-xsp_out_entry:
 	movem.l	d2-d7/a2-a6,-(sp)	* レジスタ退避
 
 	move.l	a7,a7_bak1		* まず A7 を保存。本関数内では、
@@ -833,12 +833,11 @@ SP_RAS_SORT_END:
 	lea.l	STRUCT_SIZE(a0),a0
 
 	cmpa.l	#endof_XSP_STRUCT_no_pc,a0	* 終点まで達したか？
-	bne.b	@F			* No なら bra
+	bne.b	@F				* No なら bra
 		lea.l	XSP_STRUCT_no_pc,a0	* a0.l = バッファ管理構造体 #0 アドレス
 @@:
-	cmpa.l	disp_struct(pc),a0	* 表示用バッファ管理構造体と重なっているか？
-	beq.b	@B			* 重なっているなら表示用バッファが変更されるまで待つ。
-		move.l	a0,write_struct	* 書換用バッファ管理構造体アドレス 書換え
+	move.l	a0,write_struct		* 書換用バッファ管理構造体アドレス 書換え
+	addq.w	#1,penging_disp_count	* 保留状態の表示リクエスト数 インクリメント
 
 
 *=======[ ユーザーモードへ ]

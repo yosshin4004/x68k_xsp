@@ -15,20 +15,55 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 *=======[ XSP 組込みチェック ]
 	btst.b	#0,XSP_flg(pc)		* XSP は組み込まれているか？（bit0=1か？）
 	bne.b	@F			* YES なら bra
-
-	moveq	#-1,d0			* XSP が組み込まれていないので、戻り値 = -1
-	bra.b	xsp_vsync_rts
+		moveq	#-1,d0			* XSP が組み込まれていないので、戻り値 = -1
+		bra.b	xsp_vsync_rts
+@@:
 
 *=======[ 指定 VSYNC 単位の垂直同期 ]
-@@:
+xsp_vsync_wait_loop:
 	cmp.w	vsync_count(pc),d0
-	bhi.b	@B			* vsync_count < arg1（符号無視）ならループ
+	bhi.b	xsp_vsync_wait_loop	* vsync_count < arg1（符号無視）ならループ
 
 	move.w	vsync_count(pc),d0	* d0.w = 返り値
 	clr.w	vsync_count
 
 
 xsp_vsync_rts:
+	rts
+
+
+
+
+*==========================================================================
+*
+*	short xsp_vsync2(short max_delay);
+*
+*==========================================================================
+
+_xsp_vsync2:
+
+A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
+					* + 退避レジスタの全バイト数     [ 0 byte ]
+
+	moveq	#0,d0			* 戻り値初期値 = 0
+
+*=======[ XSP 組込みチェック ]
+	btst.b	#0,XSP_flg(pc)		* XSP は組み込まれているか？（bit0=1か？）
+	bne.b	@F			* YES なら bra
+		moveq	#-1,d0			* XSP が組み込まれていないので、戻り値 = -1
+		bra.b	xsp_vsync2_rts
+@@:
+
+*=======[ 保留状態の表示リクエストが溜まりすぎるなら待つ ]
+	move.w	A7ID+arg1_w(sp),d1	* d1.w = max_delay（許容遅延フレーム数）
+
+xsp_vsync2_wait_loop:
+	cmp.w	penging_disp_count(pc),d1	*
+	bcc.b	xsp_vsync2_rts			* penging_disp_count <= d1（符号無視）なら抜ける
+		moveq	#1,d0			* 戻り値 = 1（ブロッキングしたことを示す）
+		bra.b	xsp_vsync2_wait_loop	* リトライ
+
+xsp_vsync2_rts:
 	rts
 
 
@@ -476,6 +511,7 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 
 
 
+
 *==========================================================================
 *
 *	void xsp_auto_adjust_divy(short flag);
@@ -489,6 +525,8 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 
 	move.w	A7ID+arg1_w(sp),auto_adjust_divy_flg
 	rts
+
+
 
 
 *==========================================================================
@@ -515,6 +553,8 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 
 	move.w	#-1, d0			* 無効な引数の場合はエラーとして -1 を返す
 	rts
+
+
 
 
 *==========================================================================
@@ -545,6 +585,8 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 	rts
 
 
+
+
 *==========================================================================
 *
 *	void xsp_raster_ofs_for31khz_set(short ofs);
@@ -569,6 +611,8 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 	rts
 
 
+
+
 *==========================================================================
 *
 *	short xsp_raster_ofs_for31khz_get();
@@ -582,6 +626,8 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 	move.w	raster_ofs_for31khz(pc),d0
 
 	rts
+
+
 
 
 *==========================================================================
@@ -607,6 +653,8 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 	rts
 
 
+
+
 *==========================================================================
 *
 *	short xsp_raster_ofs_for15khz_get();
@@ -620,4 +668,43 @@ A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
 	move.w	raster_ofs_for15khz(pc),d0
 
 	rts
+
+
+
+
+*==========================================================================
+*
+*	void xsp_vsync_interval_set(short interval);
+*
+*==========================================================================
+_xsp_vsync_interval_set:
+
+A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
+					* + 退避レジスタの全バイト数     [ 0 byte ]
+
+	move.w	A7ID+arg1_w(sp),d0		* d0.w = interval
+	bne.b	@F				* interval 0 でないなら bra
+		moveq.l	#1,d0			* interval 0 は 65536 扱いになってしまうので 1 に補正
+@@:
+	move.w	d0,vsync_interval_count_max	* vsync_interval_count_max = d0
+	rts
+
+
+
+
+*==========================================================================
+*
+*	short xsp_vsync_interval_get(void);
+*
+*==========================================================================
+_xsp_vsync_interval_get:
+
+A7ID	=	4			*   スタック上 return先アドレス  [ 4 byte ]
+					* + 退避レジスタの全バイト数     [ 0 byte ]
+
+	move.w	vsync_interval_count_max(pc),d0
+
+	rts
+
+
 

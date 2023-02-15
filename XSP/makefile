@@ -28,7 +28,5 @@ clean :
 	rm -f $(TARGET_FILE)
 
 # *.s ソースのアセンブル
-XSPsys.s: XSPfnc.s XSPmem.s XSPout.s XSPset.s XSPsetas.s XSP128.s XSP512.s XSP512b.s
-
-XSP2lib.o: XSPsys.s
-	$(HAS) -e -u -w0 $(INCLUDE_FLAGS) -o $@ $^
+XSP2lib.o: XSPsys.s XSPfnc.s XSPmem.s XSPout.s XSPset.s XSPsetas.s XSP128.s XSP512.s XSP512b.s
+	$(HAS) -e -u -w0 $(INCLUDE_FLAGS) -o $@ $<

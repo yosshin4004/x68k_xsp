@@ -7,6 +7,7 @@
 	.include	iocscall.mac
 
 	.globl	_xsp_vsync
+	.globl	_xsp_vsync2
 	.globl	_xsp_objdat_set
 	.globl	_xsp_pcgdat_set
 	.globl	_xsp_pcgmask_on
@@ -43,6 +44,8 @@
 	.globl	_xsp_raster_ofs_for15khz_set
 	.globl	_xsp_raster_ofs_for15khz_get
 
+	.globl	_xsp_vsync_interval_set
+	.globl	_xsp_vsync_interval_get
 
 
 *==========================================================================
@@ -263,17 +266,24 @@ VSYNC_INT:
 
 
 *=======[ 表示用バッファをチェンジ ]
-	movea.l	disp_struct(pc),a0	* a0.l = 表示用バッファ管理構造体アドレス
-	lea.l	STRUCT_SIZE(a0),a0
+	subq.w	#1,vsync_interval_count_down
+	bne.b	skip_change_disp_struct			* vsync_interval_count_down != 0 なら bra
+							* vsync_interval_count_down のリセット
+		move.w	vsync_interval_count_max(pc),vsync_interval_count_down
 
-	cmpa.l	#endof_XSP_STRUCT_no_pc,a0	* 終点まで達したか？
-	bne.b	@F			* No なら bra
-		lea.l	XSP_STRUCT_no_pc,a0
+		movea.l	disp_struct(pc),a0		* a0.l = 表示用バッファ管理構造体アドレス
+		lea.l	STRUCT_SIZE(a0),a0		* 構造体サイズ分進める
+
+		cmpa.l	#endof_XSP_STRUCT_no_pc,a0	* 終点まで達したか？
+		bne.b	@F				* No なら bra
+			lea.l	XSP_STRUCT_no_pc,a0	* 先頭に戻す
 @@:
-	cmpa.l	write_struct(pc),a0	* 書換用バッファ管理構造体と重なっているか？
-	beq.b	@F			* 重なっているなら bra
-		move.l	a0,disp_struct	* 表示用バッファ管理構造体アドレス 書換え
+		cmpa.l	write_struct(pc),a0		* 書換用バッファ管理構造体と重なっているか？
+		beq.b	@F				* 重なっているなら bra
+			move.l	a0,disp_struct		* 表示用バッファ管理構造体アドレス 更新
+			subq.w	#1,penging_disp_count	* 保留状態の表示リクエスト数 デクリメント
 @@:
+skip_change_disp_struct:
 
 *=======[ 768*512 dot mode か？ ]
 	btst.b	#1,$E80029		* 768*512 mode なら bit1=1
@@ -1638,4 +1648,3 @@ WAIT:
 
 
 
-

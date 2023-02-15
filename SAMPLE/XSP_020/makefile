@@ -54,11 +54,17 @@ INTERMEDIATE_DIR = _build
 OBJS =	$(addprefix $(INTERMEDIATE_DIR)/,$(patsubst %.c,%.o,$(C_SRCS))) \
 	$(addprefix $(INTERMEDIATE_DIR)/,$(patsubst %.s,%.o,$(ASM_SRCS)))
 
+# 依存関係ファイル
+DEPS =	$(addprefix $(INTERMEDIATE_DIR)/,$(patsubst %.c,%.d,$(C_SRCS)))
+
 # HLK に入力するリンクリスト
 HLK_LINK_LIST = $(INTERMEDIATE_DIR)/_lk_list.tmp
 
 # デフォルトのターゲット
 all : $(TARGET_FILE)
+
+# 依存関係ファイルの include
+-include $(DEPS)
 
 # 中間生成物の削除
 clean : 
@@ -69,7 +75,7 @@ clean :
 #	HLK に長いパス文字を与えることは難しい。
 #	回避策としてリンク対象ファイルを $(INTERMEDIATE_DIR) 以下にコピーし、
 #	短い相対パスを用いてリンクを実行させる。
-main.X : $(OBJS)
+main.X : $(OBJS) $(LIBS)
 	mkdir -p $(INTERMEDIATE_DIR)
 	rm -f $(HLK_LINK_LIST)
 	@for FILENAME in $(OBJS); do\
@@ -84,7 +90,7 @@ main.X : $(OBJS)
 # *.c ソースのコンパイル
 $(INTERMEDIATE_DIR)/%.o : %.c makefile
 	mkdir -p $(INTERMEDIATE_DIR)
-	$(CC) -S $(CFLAGS) -o $(INTERMEDIATE_DIR)/$*.m68k-gas.s $<
+	$(CC) -S $(CFLAGS) -o $(INTERMEDIATE_DIR)/$*.m68k-gas.s -MT $(INTERMEDIATE_DIR)/$*.o -MD -MP -MF $(INTERMEDIATE_DIR)/$*.d $<
 	$(GAS2HAS) -i $(INTERMEDIATE_DIR)/$*.m68k-gas.s -o $(INTERMEDIATE_DIR)/$*.s
 	rm -f $(INTERMEDIATE_DIR)/$*.m68k-gas.s
 	$(HAS) -e -u -w0 $(INCLUDE_FLAGS) $(INTERMEDIATE_DIR)/$*.s -o $(INTERMEDIATE_DIR)/$*.o

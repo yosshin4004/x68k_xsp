@@ -1,39 +1,48 @@
 /*
 	XSP 利用サンプルプログラム
 
-	1) 各種割り込み処理の実行
-	2) 単体スプライトの表示
-	3) 複合スプライトの表示
-	4) PCM8A との割り込み衝突の回避
-	の 4 点を行なっています。
+	[動作]
+		プログラムを起動すると、動作条件を要求してきますのでキーボードから
+		数値を入力してください。何も入力せずそのままリターンキーを押すと、
+		デフォルト値が適用されます。数値の入力を済ませると、サンプルプログ
+		ラムが開始します。
 
-	プログラムを起動するといろいろ尋ねてきますが、何も入力せずそのままリ
-	ターンキーを押すと省略したと見なされ、デフォルト値が設定されます。
+		画面上を指定枚数のパネルが動き回るデモが動作します。指定枚数のうち
+		半分が単体スプライトで、残りの半数が複合スプライトで表示されます。
+		画面左端に、スプライトダブラー処理のラスタ分割位置を "→" で表示し
+		ます。
 
-	数値の入力を済ませると、画面上を指定枚数のパネルが動き回るデモが始ま
-	ります（その半数は単体スプライトのパネル、残りの半数は複合スプライト
-	のパネルです）。パネルに書かれている番号は表示優先度を表します。優先
-	度破綻軽減モードでは、異なる優先度のパネル間の表示優先度が保護されま
-	す（同一優先度のパネル間の表示優先度は保護されません）。XSP_MODE の
-	デフォルト値は 3、つまり優先度破綻軽減モードです。これに 2 を指定す
-	ると、優先度破綻軽減が行われなくなります。3 を指定した場合と 2 を指
-	定した場合の動作の違いを、パネル間の表示優先度に注目しながら確認して
-	みて下さい。
+	[解説]
+		XSP システムを用いたより実践的なプログラムの例です。
 
-	また、PCM8A 使用時でも衝突することなく動作していることを確認するため
-	PCM8A 常駐下、PCM ドラムを多チャンネル用いた曲を演奏した状態でも実行
-	してみて下さい。その場合、ミュージックドライバーには MCDRV か ZMUSIC
-	を用い、ZMUSIC では常駐時にスイッチ -M を指定してラスタ割り込みを許
-	可して下さい。MXDRV はラスタ割り込みを許可していないので使用不可です。
+		以下の 4 点を行なっています。
 
-	画面左端に表示されている矢印は、スプライトダブラー処理のラスタ分割位
-	置を示しています。起動時に、ラスタ分割 Y 座標自動調整に on を指定し
-	た場合、表示数の多いラインを探索して動的に更新される様子を矢印の位置
-	から確認できます。
+			1) 各種割り込み処理の実行
+			2) 単体スプライトの表示
+			3) 複合スプライトの表示
+			4) PCM8A との割り込み衝突の回避
+
+		パネルに書かれている番号は表示優先度を表します。優先度破綻軽減モー
+		ドでは、異なる優先度のパネル間の表示優先度が保護されます。同一優先
+		度のパネル間の表示優先度は保護されません。XSP_MODE 2 が優先度破綻を
+		軽減しないモード、XSP_MODE 3 優先度破綻を軽減するモードです。
+		XSP_MODE 2 と 3 の違いを、パネル間の表示優先度に注目しながら確認し
+		てみて下さい。
+
+		また、PCM8A 使用時でも衝突することなく動作していることを確認するた
+		め PCM8A 常駐下、PCM ドラムを多チャンネル用いた曲を演奏した状態でも
+		実行してみて下さい。その場合、ミュージックドライバーには MCDRV か 
+		ZMUSIC を用い、ZMUSIC では常駐時にスイッチ -M を指定してラスタ割り
+		込みを許可して下さい。MXDRV はラスタ割り込みを許可していないので使
+		用不可です。
+
+		起動時に、ラスタ分割 Y 座標自動調整に on を指定した場合、表示数の
+		多いラインを探索して動的にラスタ分割が更新されます。
 */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <conio.h>
 #include <doslib.h>
 #include <iocslib.h>
@@ -41,10 +50,6 @@
 #include <math.h>
 #include "../../XSP/XSP2lib.H"
 #include "../../PCM8Afnc/PCM8Afnc.H"
-
-int		input2(char *mes, int def);
-void	ras_scroll();
-void	ras_scroll_init();
 
 /* スプライト PCG パターン最大使用数 */
 #define	PCG_MAX		256
@@ -98,13 +103,51 @@ struct {
 } panel[512];
 
 
+/*----------------------------[ コンソールから数値入力 ]------------------------------*/
+
+int input2(
+	char *mes,	/* メッセージ */
+	int def		/* デフォルト値 */
+){
+	char	str[0x100] = {0};
+	int		tmp;
+
+	printf("%s (default=%d) :", mes, def);
+	tmp = atoi(gets(str));
+	printf("\n");
+	if (tmp == 0) tmp = def;
+	return(tmp);
+}
+
+
+/*-------------------------[ 帰線期間割り込みサブルーチン ]---------------------------*/
+
+void ras_scroll_init()
+{
+	wave_ptr	= wave_ptr_00;
+	wave_ptr_00	=(wave_ptr_00 + 1) & 255;
+}
+
+
+/*--------------------------[ ラスタ割り込みサブルーチン ]----------------------------*/
+
+void ras_scroll()
+{
+	*(short *)(0xE80018) = wave[wave_ptr];	/* グラフィックプレーン0 X座標 */
+	wave_ptr = (wave_ptr + 1) & 255;
+}
+
+
 /*-------------------------------------[ MAIN ]---------------------------------------*/
+
 void main()
 {
 	int		i, j;
 	int		panel_max;
 	int		mode;
 	int		crt;
+	int		vsync_interval;
+	int		max_delay;
 	int		adjust_divy;
 	int		min_divh;
 	int		raster_ofs;
@@ -112,17 +155,19 @@ void main()
 	FILE	*fp;
 
 
-	mode		= input2("	XSP_MODE ", 3);
-	crt			= input2("	CRT_MODE [1]=31Khz : [2]=15Khz ", 1);
-	adjust_divy	= input2("	ラスタ分割 Y 座標自動調整  [1]=ON : [2]=OFF ", 1);
-	min_divh	= input2("	ラスタ分割ブロック縦幅最小値 ", 24);
+	mode			= input2("	XSP_MODE", 3);
+	crt				= input2("	CRT_MODE [1]=31Khz [2]=15Khz", 1);
+	vsync_interval	= input2("	垂直同期の間隔", 1);
+	max_delay		= input2("	バッファ数 [1]=ダブルバッファ相当 [2]=トリプルバッファ相当", 2) - 1;
+	adjust_divy		= input2("	ラスタ分割 Y 座標自動調整 [1]=ON [2]=OFF", 1);
+	min_divh		= input2("	ラスタ分割ブロック縦幅最小値", 24);
 	if (crt == 1) {
-		raster_ofs	= input2("	スプライト転送ラスタオフセット (31Khz) ", xsp_raster_ofs_for31khz_get());
+		raster_ofs	= input2("	スプライト転送ラスタオフセット (31Khz)", xsp_raster_ofs_for31khz_get());
 	} else {
-		raster_ofs	= input2("	スプライト転送ラスタオフセット (15Khz) ", xsp_raster_ofs_for15khz_get());
+		raster_ofs	= input2("	スプライト転送ラスタオフセット (15Khz)", xsp_raster_ofs_for15khz_get());
 	}
-	raster_scroll_test	= input2("	ラスタスクロールテスト  [1]=ON : [2]=OFF ", 1);
-	panel_max			= input2("	パネル枚数 ", 32);
+	raster_scroll_test	= input2("	ラスタスクロールテスト [1]=ON [2]=OFF", 1);
+	panel_max			= input2("	パネル枚数", 32);
 	if (panel_max > 512) panel_max = 512;
 
 
@@ -150,6 +195,9 @@ void main()
 
 	/* グラフィックパレット 1 番を真っ白にする */
 	GPALET(1, 0xFFFF);
+
+	/* 簡易説明 */
+	printf("何かキーを押すと終了します。\n");
 
 	/* カーソル表示 OFF */
 	B_CUROFF();
@@ -311,6 +359,9 @@ void main()
 	/* 動作モード設定 */
 	xsp_mode(mode);
 
+	/* 垂直同期の間隔を指定 */
+	xsp_vsync_interval_set(vsync_interval);
+
 	/* ラスタ分割 Y 座標の自動調整 */
 	if (adjust_divy == 1) {
 		xsp_auto_adjust_divy(1);
@@ -384,9 +435,10 @@ void main()
 
 	/*============================[ キャラが跳ね回るデモ ]==============================*/
 
+	/* 何かキーを押すまでループ */
 	while (INPOUT(0xFF) == 0) {
 		/* 垂直同期 */
-		xsp_vsync(1);
+		xsp_vsync2(max_delay);
 
 		/* 半分は単体スプライトで表示 */
 		for (i = 0; i < panel_max / 2; i++) {
@@ -427,45 +479,6 @@ void main()
 
 	/* 画面モードを戻す */
 	CRTMOD(0x10);
-}
-
-
-/*
-	デフォルト値有りの input() 関数
-*/
-int input2(
-	char *mes,	/* メッセージ */
-	int def		/* デフォルト値 */
-){
-	char	str[35];
-	int		tmp;
-
-	printf("%s[ 省略=%d ]=", mes, def);
-	str[0] = 32;
-	tmp = atoi(cgets(str));
-	printf("\n");
-	if (tmp == 0) tmp = def;
-	return(tmp);
-}
-
-
-/*
-	帰線期間割り込みサブルーチン
-*/
-void ras_scroll_init()
-{
-	wave_ptr	= wave_ptr_00;
-	wave_ptr_00	=(wave_ptr_00 + 1) & 255;
-}
-
-
-/*
-	ラスタ割り込みサブルーチン
-*/
-void ras_scroll()
-{
-	*(short *)(0xE80018) = wave[wave_ptr];	/* グラフィックプレーン0 X座標 */
-	wave_ptr = (wave_ptr + 1) & 255;
 }
 
 

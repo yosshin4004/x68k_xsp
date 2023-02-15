@@ -44,14 +44,15 @@ typedef	struct	{
 
 
 
-void	xsp_on();
-void	xsp_off();
+void	xsp_on(void);
+void	xsp_off(void);
 void	xsp_pcgdat_set(const void *pcg_dat, char *pcg_alt, short alt_size);
 void	xsp_pcgmask_on(short start_no, short end_no);
 void	xsp_pcgmask_off(short start_no, short end_no);
 void	xsp_mode(short mode_no);
 void	xsp_objdat_set(const void *sp_ref);
-short	xsp_vsync(short n);
+short	xsp_vsync(short n);			/* obsoleted */
+short	xsp_vsync2(short max_delay);
 #if !defined(XSP_USE_INLINE_ASM)
 short	xsp_set(short x, short y, short pt, short info);
 void	xobj_set(short x, short y, short pt, short info);
@@ -116,21 +117,24 @@ void	xobj_set_st(const void *arg);
 		);
 	}
 #endif
-short	xsp_out();
+short	xsp_out(void);
 short	xsp_out2(void *vsyncint_arg);
 void	xsp_vertical(short flag);
 
 void	xsp_vsyncint_on(void *proc);
-void	xsp_vsyncint_off() ;
+void	xsp_vsyncint_off(void);
 void	xsp_hsyncint_on(const void *time_chart);
-void	xsp_hsyncint_off();
+void	xsp_hsyncint_off(void);
 
 void	xsp_auto_adjust_divy(short flag);
 void	xsp_min_divh_set(short h);
 short	xsp_divy_get(short i);
 void	xsp_raster_ofs_for31khz_set(short ofs);
-short	xsp_raster_ofs_for31khz_get();
+short	xsp_raster_ofs_for31khz_get(void);
 void	xsp_raster_ofs_for15khz_set(short ofs);
-short	xsp_raster_ofs_for15khz_get();
+short	xsp_raster_ofs_for15khz_get(void);
+
+void	xsp_vsync_interval_set(short interval);
+short	xsp_vsync_interval_get(void);
 
 #endif
