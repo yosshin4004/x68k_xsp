@@ -19,7 +19,8 @@ HAS = $(RUN68) ${XDEV68K_DIR}/x68k_bin/HAS060.X
 HLK = $(RUN68) ${XDEV68K_DIR}/x68k_bin/hlk301.x
 
 # 最終生成物
-TARGET_FILE = main.X
+EXECUTABLE = main.X
+TARGET_FILES = $(EXECUTABLE)
 
 # ヘッダ検索パス
 INCLUDE_FLAGS = -I${XDEV68K_DIR}/include/xc -I${XDEV68K_DIR}/include/xdev68k
@@ -61,21 +62,21 @@ DEPS =	$(addprefix $(INTERMEDIATE_DIR)/,$(patsubst %.c,%.d,$(C_SRCS)))
 HLK_LINK_LIST = $(INTERMEDIATE_DIR)/_lk_list.tmp
 
 # デフォルトのターゲット
-all : $(TARGET_FILE)
+all : $(TARGET_FILES)
 
 # 依存関係ファイルの include
 -include $(DEPS)
 
 # 中間生成物の削除
 clean : 
-	rm -f $(TARGET_FILE)
+	rm -f $(TARGET_FILES)
 	rm -rf $(INTERMEDIATE_DIR)
 
 # 実行ファイルの生成
 #	HLK に長いパス文字を与えることは難しい。
 #	回避策としてリンク対象ファイルを $(INTERMEDIATE_DIR) 以下にコピーし、
 #	短い相対パスを用いてリンクを実行させる。
-main.X : $(OBJS) $(LIBS)
+$(EXECUTABLE) : $(OBJS) $(LIBS)
 	mkdir -p $(INTERMEDIATE_DIR)
 	rm -f $(HLK_LINK_LIST)
 	@for FILENAME in $(OBJS); do\
@@ -85,7 +86,7 @@ main.X : $(OBJS) $(LIBS)
 		cp $$FILENAME $(INTERMEDIATE_DIR)/`basename $$FILENAME`; \
 		echo $(INTERMEDIATE_DIR)/`basename $$FILENAME` >> $(HLK_LINK_LIST); \
         done
-	$(HLK) -i $(HLK_LINK_LIST) -o $(TARGET_FILE)
+	$(HLK) -i $(HLK_LINK_LIST) -o $(EXECUTABLE)
 
 # *.c ソースのコンパイル
 $(INTERMEDIATE_DIR)/%.o : %.c makefile
@@ -95,6 +96,7 @@ $(INTERMEDIATE_DIR)/%.o : %.c makefile
 	rm -f $(INTERMEDIATE_DIR)/$*.m68k-gas.s
 	$(HAS) -e -u -w0 $(INCLUDE_FLAGS) $(INTERMEDIATE_DIR)/$*.s -o $(INTERMEDIATE_DIR)/$*.o
 
-# *.s ソースのコンパイル
+# *.s ソースのアセンブル
 $(INTERMEDIATE_DIR)/%.o : %.s makefile
+	mkdir -p $(INTERMEDIATE_DIR)
 	$(HAS) -e -u -w0 $(INCLUDE_FLAGS) $*.s -o $(INTERMEDIATE_DIR)/$*.o
